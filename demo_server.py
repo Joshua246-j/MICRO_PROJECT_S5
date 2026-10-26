@@ -688,6 +688,7 @@ if STATIC_DIR.exists():
 
 
 @app.get("/", include_in_schema=False)
+@app.head("/", include_in_schema=False)
 @app.get("/markets", include_in_schema=False)
 @app.get("/news", include_in_schema=False)
 @app.get("/watchlist", include_in_schema=False)

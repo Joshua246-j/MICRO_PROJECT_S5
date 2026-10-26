@@ -20,8 +20,8 @@ RUN groupadd -r appgroup --gid 10001 && \
 WORKDIR /app
 
 # Install minimal demo dependencies (no Ollama, FAISS, PyTorch, Pandas)
-COPY requirements-demo.txt ./
-RUN pip install --no-cache-dir --default-timeout=100 -r requirements-demo.txt
+COPY requirements.txt ./
+RUN pip install --no-cache-dir --default-timeout=100 -r requirements.txt
 
 # Copy only demo application and static assets
 COPY demo_server.py ./
