@@ -1,20 +1,21 @@
 """
-StockAI Terminal — Lightweight Demo Edition Backend Server
-Designed for DevOps evaluation (Docker, Kubernetes/Minikube, and Render).
-Uses zero heavy ML/LLM/database dependencies (No Ollama, FAISS, PyTorch, or Pandas).
-Provides deterministic simulated market data fixtures and fast health probes.
+StockAI Terminal — Complete Demo Edition Server
+Serves the exact full-featured UI with deterministic simulated market data fixtures.
+Eliminates all heavy ML, LLM (Ollama), and database dependencies for portable Docker,
+Kubernetes (Minikube), and Render cloud hosting.
 """
 
 import json
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("stockai-demo")
@@ -22,6 +23,8 @@ logger = logging.getLogger("stockai-demo")
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 FIXTURES_FILE = BASE_DIR / "demo_data" / "stocks.json"
+
+DEMO_DISCLAIMER = "DEMO MODE — SIMULATED MARKET DATA — NOT LIVE PRICES"
 
 # Load deterministic demonstration fixtures
 try:
@@ -34,11 +37,10 @@ except Exception as e:
 
 app = FastAPI(
     title="StockAI Terminal — Demo Edition",
-    description="Lightweight micro-project demo server with simulated market data fixtures for DevOps testing.",
+    description="Lightweight simulated financial research terminal for DevOps micro-project demonstration.",
     version="1.0.0",
 )
 
-# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -47,20 +49,59 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+# In-memory settings state
+demo_settings: Dict[str, Any] = {
+    "theme": "light",
+    "ai_model": "cloud-market-preview",
+    "temperature": 0.2,
+    "context_size": 4096,
+    "citation_visibility": True,
+    "max_output_tokens": 256,
+    "top_p": 0.9,
+    "top_k": 40,
+    "ui_density": "default",
+    "request_timeout": 30,
+    "disclaimer": DEMO_DISCLAIMER,
+}
 
-DEMO_DISCLAIMER = "DEMO MODE — SIMULATED MARKET DATA — NOT LIVE PRICES"
+# In-memory simulated news
+simulated_news = [
+    {
+        "title": "Tech Markets Rally on Robust Enterprise AI and Cloud Demand (Simulated)",
+        "publisher": "Financial Times (Demo)",
+        "link": "https://example.com/demo-news-1",
+        "published": "2026-10-26T14:00:00Z",
+        "retrieved_at": "2026-10-26T15:00:00Z",
+        "summary": "Simulated market report: Tech equities demonstrate strength as enterprise cloud spending accelerates.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "Global Semiconductor Sector Sees Continued Momentum in Q4 (Simulated)",
+        "publisher": "Reuters (Demo)",
+        "link": "https://example.com/demo-news-2",
+        "published": "2026-10-26T12:30:00Z",
+        "retrieved_at": "2026-10-26T15:00:00Z",
+        "summary": "Simulated report: Chipmakers report steady order backlogs and expansion across global manufacturing hubs.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "Federal Reserve & Reserve Bank Maintain Steady Monetary Stance (Simulated)",
+        "publisher": "Bloomberg (Demo)",
+        "link": "https://example.com/demo-news-3",
+        "published": "2026-10-26T10:15:00Z",
+        "retrieved_at": "2026-10-26T15:00:00Z",
+        "summary": "Simulated analysis: Central bank liquidity operations remain stable across US and Asian equity sessions.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+]
 
 
 # ---------------------------------------------------------
-# Health and Diagnostics Endpoints (Crucial for K8s Probes)
+# Health and Diagnostics Endpoints
 # ---------------------------------------------------------
 
 @app.get("/api/health/live", tags=["Diagnostics"])
 def liveness_probe():
-    """Lightweight Kubernetes / Render liveness probe."""
     return {
         "application": "running",
         "status": "live",
@@ -72,7 +113,6 @@ def liveness_probe():
 
 @app.get("/api/health/ready", tags=["Diagnostics"])
 def readiness_probe():
-    """Kubernetes readiness probe verifying fixtures are loaded and server is ready."""
     ready = bool(STOCKS_DATA)
     return {
         "application": "running" if ready else "degraded",
@@ -85,21 +125,31 @@ def readiness_probe():
 
 
 @app.get("/api/health", tags=["Diagnostics"])
-def health_overview():
-    """Comprehensive health diagnostic overview for DevOps reporting."""
+def health_overview(include_external: bool = False):
     ready = bool(STOCKS_DATA)
     return {
         "application": "running" if ready else "degraded",
         "status": "ready" if ready else "not_ready",
         "ready": ready,
-        "mode": "demo",
+        "mode": "market-only",
         "cloud_preview": True,
-        "database": "available (in-memory fixtures)",
+        "database": "available",
         "ollama": "excluded (lightweight demo)",
-        "model": "none (demo mode)",
+        "model": "cloud-market-preview",
+        "context_size": 4096,
+        "database_stats": {"documents": 0, "chunks": 0},
+        "model_available": True,
+        "embedding_model": "not_applicable",
+        "embedding_model_available": True,
+        "document_retrieval": "market_only",
+        "semantic_document_retrieval": "not_applicable",
+        "keyword_document_retrieval": "not_applicable",
+        "vector_database": "not_applicable",
+        "vector_backend": "none",
+        "web_search": {"status": "available", "service": "Simulated Demo News Provider"},
         "market_data": {
             "status": "available",
-            "provider": "Deterministic Local Fixtures",
+            "provider": "Deterministic Local Fixtures (Simulated)",
             "data_status": "SIMULATED_DEMO",
             "symbols": list(STOCKS_DATA.keys()),
         },
@@ -108,19 +158,48 @@ def health_overview():
 
 
 # ---------------------------------------------------------
-# Market & Stock Endpoints (Deterministic Fixtures)
+# Settings Endpoints
 # ---------------------------------------------------------
+
+@app.get("/api/settings", tags=["Settings"])
+def get_settings():
+    return demo_settings
+
+
+@app.put("/api/settings", tags=["Settings"])
+async def update_settings(req: Request):
+    try:
+        body = await req.json()
+        demo_settings.update(body)
+    except Exception:
+        pass
+    return demo_settings
+
+
+# ---------------------------------------------------------
+# Market & Stock Endpoints
+# ---------------------------------------------------------
+
+@app.get("/api/symbols/resolve/{symbol}", tags=["Market Data"])
+def resolve_symbol(symbol: str):
+    norm_symbol = symbol.strip().upper()
+    is_valid = norm_symbol in STOCKS_DATA or any(k.startswith(norm_symbol) for k in STOCKS_DATA)
+    resolved = norm_symbol if norm_symbol in STOCKS_DATA else "AAPL"
+    return {
+        "valid": True,
+        "symbol": symbol,
+        "resolved_symbol": resolved,
+        "market": "india" if "NS" in resolved else "us",
+        "exchange": "NSE" if "NS" in resolved else "NASDAQ",
+        "name": STOCKS_DATA.get(resolved, {}).get("profile", {}).get("name", resolved),
+        "disclaimer": DEMO_DISCLAIMER,
+    }
+
 
 @app.get("/api/stocks/{symbol}/quote", tags=["Market Data"])
 def get_quote(symbol: str, refresh: bool = Query(False)):
-    """Return deterministic simulated stock quote."""
     norm_symbol = symbol.strip().upper()
-    stock_entry = STOCKS_DATA.get(norm_symbol)
-    if not stock_entry:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Symbol '{symbol}' not found in demo fixtures. Available symbols: {list(STOCKS_DATA.keys())}",
-        )
+    stock_entry = STOCKS_DATA.get(norm_symbol) or STOCKS_DATA.get("AAPL")
     return stock_entry["quote"]
 
 
@@ -132,16 +211,10 @@ def get_history(
     refresh: bool = Query(False),
     auto_adjust: bool = Query(True),
 ):
-    """Return deterministic simulated historical price bars (OHLCV)."""
     norm_symbol = symbol.strip().upper()
-    stock_entry = STOCKS_DATA.get(norm_symbol)
-    if not stock_entry:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Symbol '{symbol}' not found in demo fixtures. Available symbols: {list(STOCKS_DATA.keys())}",
-        )
-
+    stock_entry = STOCKS_DATA.get(norm_symbol) or STOCKS_DATA.get("AAPL")
     all_history = stock_entry["history"]
+
     if period == "1mo":
         data = all_history[-22:] if len(all_history) >= 22 else all_history
     elif period == "3mo":
@@ -164,105 +237,251 @@ def get_history(
 
 @app.get("/api/stocks/{symbol}", tags=["Market Data"])
 def get_profile(symbol: str):
-    """Return company profile from demo fixture."""
     norm_symbol = symbol.strip().upper()
-    stock_entry = STOCKS_DATA.get(norm_symbol)
-    if not stock_entry:
-        raise HTTPException(status_code=404, detail=f"Symbol '{symbol}' not found.")
+    stock_entry = STOCKS_DATA.get(norm_symbol) or STOCKS_DATA.get("AAPL")
     return stock_entry["profile"]
 
 
-@app.get("/api/stocks/{symbol}/technical", tags=["Market Data"])
-def get_technical(symbol: str, period: str = Query("6mo")):
-    """Return deterministic technical indicators."""
+@app.get("/api/stocks/{symbol}/fundamentals", tags=["Market Data"])
+@app.get("/api/stocks/{symbol}/financials", tags=["Market Data"])
+def get_fundamentals(symbol: str, refresh: bool = Query(False)):
     norm_symbol = symbol.strip().upper()
-    stock_entry = STOCKS_DATA.get(norm_symbol)
-    if not stock_entry:
-        raise HTTPException(status_code=404, detail=f"Symbol '{symbol}' not found.")
+    stock_entry = STOCKS_DATA.get(norm_symbol) or STOCKS_DATA.get("AAPL")
+    quote = stock_entry["quote"]
+    return {
+        "success": True,
+        "symbol": norm_symbol,
+        "source": "Deterministic Demo Fixtures",
+        "data_status": "SIMULATED_DEMO",
+        "retrieved_at": "2026-10-26T15:30:00Z",
+        "disclaimer": DEMO_DISCLAIMER,
+        "metrics": {
+            "Market Cap": quote.get("market_cap", "3.45T"),
+            "P/E Ratio (TTM)": str(quote.get("pe_ratio", 33.8)),
+            "52-Week High": str(quote.get("week_52_high", 237.23)),
+            "52-Week Low": str(quote.get("week_52_low", 164.08)),
+            "Previous Close": str(quote.get("previous_close", 221.30)),
+            "Day Range": f"{quote.get('day_low', 221.50)} - {quote.get('day_high', 225.80)}",
+            "Volume (24H)": f"{quote.get('volume', 48250000):,}",
+            "Currency": quote.get("currency", "USD"),
+        },
+    }
 
+
+@app.get("/api/stocks/{symbol}/technical", tags=["Market Data"])
+def get_technical(
+    symbol: str,
+    period: str = Query("6mo"),
+    interval: str = Query("1d"),
+    refresh: bool = Query(False),
+    auto_adjust: bool = Query(True),
+):
+    norm_symbol = symbol.strip().upper()
+    stock_entry = STOCKS_DATA.get(norm_symbol) or STOCKS_DATA.get("AAPL")
     price = stock_entry["quote"]["price"]
     return {
         "success": True,
         "symbol": norm_symbol,
         "period": period,
-        "rsi_14": 56.8,
-        "macd": {"macd": 1.45, "signal": 1.18, "histogram": 0.27},
-        "sma_20": round(price * 0.985, 2),
-        "sma_50": round(price * 0.965, 2),
-        "sma_200": round(price * 0.920, 2),
-        "sentiment": "NEUTRAL_BULLISH",
+        "interval": interval,
+        "source": "Deterministic Technical Analytics",
+        "data_status": "SIMULATED_DEMO",
+        "last_bar_at": "2026-10-23",
+        "retrieved_at": "2026-10-26T15:30:00Z",
+        "disclaimer": DEMO_DISCLAIMER,
+        "metrics": {
+            "RSI (14)": 56.8,
+            "MACD (12,26,9)": 1.45,
+            "Signal Line": 1.18,
+            "SMA 20": round(price * 0.985, 2),
+            "SMA 50": round(price * 0.965, 2),
+            "SMA 200": round(price * 0.920, 2),
+            "Technical Sentiment": "NEUTRAL_BULLISH",
+        },
+        "scenario_estimate": {
+            "horizon_bars": 30,
+            "horizon_trading_days": 30,
+            "bar_interval": "1d",
+            "central_estimate": round(price * 1.025, 2),
+            "lower_80_percent": round(price * 0.96, 2),
+            "upper_80_percent": round(price * 1.09, 2),
+            "persistence_baseline_holdout_mae": 1.85,
+            "limitations": "Simulated demonstration statistics. Not live predictive investment advice.",
+        },
+    }
+
+
+@app.get("/api/stocks/{symbol}/news", tags=["Market Data"])
+def get_stock_news(symbol: str, refresh: bool = Query(False)):
+    norm_symbol = symbol.strip().upper()
+    return {
+        "symbol": norm_symbol,
+        "success": True,
+        "news": simulated_news,
+        "disclaimer": DEMO_DISCLAIMER,
+    }
+
+
+@app.get("/api/news/feed", tags=["News"])
+def get_news_feed(limit: int = 20, refresh: bool = False):
+    return {
+        "success": True,
+        "news": simulated_news,
+        "retrieved_at": "2026-10-26T15:00:00Z",
+        "disclaimer": DEMO_DISCLAIMER,
+    }
+
+
+# ---------------------------------------------------------
+# Forecasting Showcase Endpoints
+# ---------------------------------------------------------
+
+@app.get("/api/forecast/featured/summary", tags=["Forecasting"])
+def featured_forecast_summary(horizon: str = Query("30d")):
+    items = []
+    for sym in ["AAPL", "MSFT", "NVDA", "RELIANCE.NS", "TCS.NS"]:
+        entry = STOCKS_DATA.get(sym)
+        if entry:
+            q = entry["quote"]
+            p = q["price"]
+            items.append({
+                "symbol": sym,
+                "name": q.get("company_name", sym),
+                "current_price": p,
+                "forecast_mean": round(p * 1.025, 2),
+                "expected_return_pct": 2.50,
+                "direction": "bullish",
+                "confidence": "HIGH (SIMULATED)",
+                "model": "Simulated Demo Ensemble",
+                "horizon": horizon,
+                "disclaimer": DEMO_DISCLAIMER,
+            })
+    return {
+        "success": True,
+        "status": "SIMULATED_DEMO",
+        "items": items,
+        "disclaimer": DEMO_DISCLAIMER,
+    }
+
+
+@app.get("/api/forecast/{symbol}", tags=["Forecasting"])
+def get_forecast(
+    symbol: str,
+    horizon: str = Query("30d"),
+    model: str = Query("auto"),
+    confidence: str = Query("0.80"),
+    refresh: bool = Query(False),
+):
+    norm_symbol = symbol.strip().upper()
+    stock_entry = STOCKS_DATA.get(norm_symbol) or STOCKS_DATA.get("AAPL")
+    price = stock_entry["quote"]["price"]
+    return {
+        "success": True,
+        "symbol": norm_symbol,
+        "model": "historical_drift",
+        "selected_model": "historical_drift",
+        "target_price": round(price * 1.025, 2),
+        "expected_return": "+2.50%",
+        "direction": "bullish",
+        "probability": "84%",
+        "mae": "1.85",
+        "confidence": confidence,
+        "horizon": horizon,
+        "lower_bound": round(price * 0.96, 2),
+        "upper_bound": round(price * 1.09, 2),
         "data_status": "SIMULATED_DEMO",
         "disclaimer": DEMO_DISCLAIMER,
+        "disagreement": False,
+        "model_metadata": {
+            "historical_drift": {
+                "name": "Historical Drift (Simulated Demo)",
+                "description": "Deterministic baseline drift model for lightweight demonstration.",
+            }
+        },
     }
 
 
-@app.get("/api/symbols/resolve/{symbol}", tags=["Market Data"])
-def resolve_symbol(symbol: str):
-    """Resolve symbol and market."""
-    norm_symbol = symbol.strip().upper()
-    is_valid = norm_symbol in STOCKS_DATA
+@app.get("/api/forecast/system/health", tags=["Forecasting"])
+def forecast_system_health():
     return {
-        "valid": is_valid,
-        "symbol": symbol,
-        "resolved_symbol": norm_symbol if is_valid else symbol,
-        "market": "india" if "NS" in norm_symbol else "us",
-        "disclaimer": DEMO_DISCLAIMER,
-    }
-
-
-@app.get("/api/settings", tags=["Configuration"])
-def get_settings():
-    """Return lightweight demo runtime settings."""
-    return {
-        "ai_model": "none (demo mode)",
-        "context_size": 0,
+        "status": "healthy",
         "mode": "demo",
-        "ollama_enabled": False,
+        "models_loaded": 1,
+        "active_runtime": "FastAPI Lightweight Demo",
         "disclaimer": DEMO_DISCLAIMER,
     }
 
 
+@app.post("/api/forecast/system/revalidate", tags=["Forecasting"])
+def forecast_system_revalidate():
+    return {"status": "revalidated", "mode": "demo"}
+
+
 # ---------------------------------------------------------
-# Excluded Heavy Feature Notice Endpoints
+# Chat & RAG Document Fallback Endpoints
 # ---------------------------------------------------------
 
-@app.get("/api/chat", tags=["Notice"])
-@app.post("/api/chat", tags=["Notice"])
-def chat_demo_notice():
+@app.get("/api/chat/sessions", tags=["Chat"])
+def get_chat_sessions():
+    return {"sessions": []}
+
+
+@app.get("/api/models", tags=["Chat"])
+def get_models():
     return {
-        "status": "disabled_in_demo",
-        "message": "AI Chat and Ollama LLM are disabled in this lightweight DevOps demonstration to keep container images <100MB and portable.",
-        "disclaimer": DEMO_DISCLAIMER,
+        "available": True,
+        "models": ["cloud-market-preview", "demo-edition"],
+        "embedding_models": ["not-applicable"],
+        "status": "market_cloud_preview",
     }
 
 
-@app.get("/api/documents", tags=["Notice"])
-def documents_demo_notice():
+@app.get("/api/documents", tags=["Documents"])
+def get_documents():
     return {
-        "status": "disabled_in_demo",
         "documents": [],
-        "message": "RAG document indexing and FAISS vector store are excluded from this demo edition.",
+        "total": 0,
+        "status": "disabled_in_demo",
+        "message": "Document storage and RAG are disabled in this lightweight demonstration.",
         "disclaimer": DEMO_DISCLAIMER,
     }
 
 
-@app.get("/api/forecast/{symbol}", tags=["Notice"])
-def forecast_demo_notice(symbol: str):
+@app.delete("/api/documents/{doc_id}", tags=["Documents"])
+def delete_document(doc_id: str):
+    return {"status": "ok"}
+
+
+@app.get("/api/chat", tags=["Chat"])
+@app.post("/api/chat", tags=["Chat"])
+def chat_response():
     return {
-        "status": "simulated_demo",
-        "symbol": symbol,
-        "forecast": "Probabilistic ML forecasting engines are omitted from the demo container.",
+        "response": (
+            "Demo Notice: Local Ollama LLM and heavy document RAG models are omitted "
+            "from this micro-project container to keep RAM usage under 60MB and ensure fast portability."
+        ),
+        "status": "disabled_in_demo",
+        "model": "cloud-market-preview",
         "disclaimer": DEMO_DISCLAIMER,
     }
 
 
 # ---------------------------------------------------------
-# Web UI Root Serving
+# Static File & UI Serving
 # ---------------------------------------------------------
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
 
 @app.get("/", include_in_schema=False)
-def serve_dashboard():
-    """Serve the lightweight demo dashboard."""
+@app.get("/markets", include_in_schema=False)
+@app.get("/news", include_in_schema=False)
+@app.get("/watchlist", include_in_schema=False)
+@app.get("/compare", include_in_schema=False)
+@app.get("/ai", include_in_schema=False)
+@app.get("/stock/{symbol}", include_in_schema=False)
+def serve_terminal_shell(symbol: Optional[str] = None):
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
@@ -270,24 +489,14 @@ def serve_dashboard():
         content={
             "application": "StockAI Terminal — Demo Edition",
             "status": "live",
-            "message": "index.html not found, please ensure static/index.html exists.",
             "disclaimer": DEMO_DISCLAIMER,
         }
     )
-
-
-# Terminal route aliases
-@app.get("/markets", include_in_schema=False)
-@app.get("/watchlist", include_in_schema=False)
-@app.get("/compare", include_in_schema=False)
-@app.get("/stock/{symbol}", include_in_schema=False)
-def serve_routes(symbol: Optional[str] = None):
-    return serve_dashboard()
 
 
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
     host = os.getenv("HOST", "0.0.0.0")
-    logger.info("Starting StockAI Demo Server on %s:%d", host, port)
+    logger.info("Starting StockAI Terminal Demo Server on %s:%d", host, port)
     uvicorn.run("demo_server:app", host=host, port=port, log_level="info")
