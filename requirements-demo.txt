@@ -1,0 +1,5 @@
+# Minimal dependencies for StockAI Terminal Demo Edition (DevOps Micro-Project)
+# Zero heavy dependencies: no faiss-cpu, langchain, ollama, scikit-learn, pandas, or numpy.
+fastapi>=0.111.0,<1.0.0
+uvicorn[standard]>=0.30.0,<1.0.0
+pydantic>=2.7.0,<3.0.0

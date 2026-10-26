@@ -1,0 +1,24 @@
+# Render Blueprint Specification for StockAI Terminal Demo Edition (Micro-Project S5)
+# Deploy via: Render Dashboard -> Blueprints -> New Blueprint Instance -> Select MICRO_PROJECT_S5
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: stockai-terminal-demo
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health/live
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: APP_MODE
+        value: demo
+      - key: HOST
+        value: "0.0.0.0"
+      - key: LOG_LEVEL
+        value: INFO
