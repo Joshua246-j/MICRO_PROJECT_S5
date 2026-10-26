@@ -2,7 +2,7 @@ services:
   stockai-demo:
     build:
       context: .
-      dockerfile: Dockerfile.demo
+      dockerfile: Dockerfile
     image: stockai-demo:1.0.0
     container_name: stockai-demo
     ports:

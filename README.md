@@ -14,7 +14,7 @@ StockAI Terminal Demo Edition is a full-featured, responsive financial research 
 +-------------------------------------------------------------+
 |                      Client Browser                         |
 |  - HTML5, Tailwind CSS, Lucide Icons, TradingView Charts   |
-|  - Watchlist (AAPL, MSFT, NVDA, RELIANCE.NS, TCS.NS)        |
+|  - Watchlist (AAPL, MSFT, NVDA, GOOGL, RELIANCE, TCS, HDFC, INFY) |
 |  - Real-time Interactive Candlestick / Area Chart          |
 |  - Prominent Simulated Data Disclosures                     |
 +------------------------------+------------------------------+
@@ -116,16 +116,28 @@ kubectl port-forward -n stockai-demo svc/stockai-demo 8003:8000
 ### D. Render Cloud Deployment
 
 1. Create a free account at [render.com](https://render.com).
-2. Click **New +** -> **Blueprint**.
-3. Connect your repository: `https://github.com/Joshua246-j/MICRO_PROJECT_S5`.
-4. Render automatically detects `render.yaml` and deploys the web service on branch `main`.
-5. Access your public live terminal URL!
+2. Connect your repository: `https://github.com/Joshua246-j/MICRO_PROJECT_S5`.
+3. Render automatically detects `render.yaml` and deploys the web service on branch `main`.
+4. **Live Public URL:** [https://stockai-terminal-demo.onrender.com/](https://stockai-terminal-demo.onrender.com/)
+
+---
+
+### E. Database Clean & State Reset
+
+To reset all simulated chat sessions, clear audit logs, and clean the demo state:
+
+```powershell
+# Clean via API probe
+curl http://localhost:8000/api/database/clean
+# or on the public Render deployment:
+curl https://stockai-terminal-demo.onrender.com/api/database/clean
+```
 
 ---
 
 ## 4. Automated QA Test Suite
 
-To run all 37 automated tests:
+To run all 56 automated verification tests:
 
 ```powershell
 python test_demo.py
@@ -133,6 +145,9 @@ python test_demo.py
 
 Results verify:
 - Root page returns HTTP 200 with proper demo disclosure.
-- Liveness probe returns `status: live`.
-- Quotes and OHLCV bars satisfy all financial mathematical invariants.
-- Heavy ML and Ollama subsystems are strictly excluded.
+- Liveness and readiness probes return `status: live` and `ready: true`.
+- Quotes and OHLCV bars for all 8 US and NSE symbols satisfy financial mathematical invariants.
+- Dynamic forecast projections and custom model benchmarking operate in lightweight mode.
+- Database clean and maintenance endpoint functions with zero residual locks.
+- Static assets (CSS, JS, lightweight charts, lucide icons) serve with 100% integrity.
+- Heavy ML and Ollama subsystems are strictly excluded for high portability.

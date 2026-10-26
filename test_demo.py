@@ -54,8 +54,8 @@ def run_all_tests():
     health_res = client.get("/api/health")
     log_test("/api/health overview", health_res.status_code == 200 and health_res.json().get("ollama") == "excluded (lightweight demo)")
 
-    # 3. Stock Quotes for All 5 Symbols
-    symbols = ["AAPL", "MSFT", "NVDA", "RELIANCE.NS", "TCS.NS"]
+    # 3. Stock Quotes for All 8 Dashboard Symbols
+    symbols = ["AAPL", "MSFT", "NVDA", "GOOGL", "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS"]
     for sym in symbols:
         q_res = client.get(f"/api/stocks/{sym}/quote")
         passed = (q_res.status_code == 200)
@@ -103,16 +103,25 @@ def run_all_tests():
     # 5. Static Assets Verification
     css_res = client.get("/static/tailwind.css")
     log_test("Static Asset: tailwind.css", css_res.status_code == 200)
+    index_css_res = client.get("/static/index.css")
+    log_test("Static Asset: index.css", index_css_res.status_code == 200)
+    app_js_res = client.get("/static/app.js")
+    log_test("Static Asset: app.js", app_js_res.status_code == 200)
     charts_res = client.get("/static/vendor/lightweight-charts.js")
     log_test("Static Asset: lightweight-charts.js", charts_res.status_code == 200)
     lucide_res = client.get("/static/vendor/lucide.js")
     log_test("Static Asset: lucide.js", lucide_res.status_code == 200)
 
-    # 6. Safety Exclusions
+    # 6. Safety Exclusions & Custom Endpoints
     chat_res = client.get("/api/chat")
     log_test("Chat Disabled Notice", chat_res.status_code == 200 and chat_res.json().get("status") == "disabled_in_demo")
     docs_res = client.get("/api/documents")
     log_test("Docs RAG Disabled Notice", docs_res.status_code == 200 and docs_res.json().get("status") == "disabled_in_demo")
+    custom_res = client.post("/api/forecast/custom/evaluate", json={"symbol": "AAPL"})
+    log_test("/api/forecast/custom/evaluate", custom_res.status_code == 200 and custom_res.json().get("success") is True)
+    db_clean_res = client.get("/api/database/clean")
+    log_test("/api/database/clean", db_clean_res.status_code == 200 and db_clean_res.json().get("action") == "database_cleaned")
+
 
     print("=" * 60)
     print(f" TOTAL TESTS: {PASSED + FAILED} | PASSED: {PASSED} | FAILED: {FAILED}")

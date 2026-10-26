@@ -1,25 +1,91 @@
+/* ==========================================================================
+   StockAI Terminal — Ultra-Modern Liquid Glass & Precision Design System
+   ========================================================================== */
+
 :root {
   color-scheme: light;
-  --glass-bg: rgba(255,255,255,.72);
-  --glass-border: rgba(255,255,255,.72);
-  --glass-shadow: 0 8px 32px rgba(22,34,55,.08);
-  --sidebar-bg: rgba(248,249,252,.88);
-  --text-main: #1c1c1e;
-  --text-muted: #737780;
-  --accent: #0a84ff;
-  --page-bg: #f4f6fa;
+  --glass-bg: rgba(255, 255, 255, 0.76);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-border-hover: rgba(14, 165, 233, 0.45);
+  --glass-shadow: 0 12px 32px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --sidebar-bg: rgba(248, 250, 252, 0.88);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent: #0284c7;
+  --accent-glow: rgba(2, 132, 199, 0.25);
+  --page-bg: #f8fafc;
+  --card-bg: rgba(255, 255, 255, 0.82);
+  --card-border: rgba(226, 232, 240, 0.8);
+  --neon-cyan: #0284c7;
+  --neon-emerald: #10b981;
+  --neon-violet: #8b5cf6;
+  --neon-rose: #ef4444;
+  --neon-amber: #f59e0b;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
+
 html[data-theme="dark"], html.dark {
   color-scheme: dark;
-  --glass-bg: rgba(28,28,30,.78);
-  --glass-border: rgba(255,255,255,.12);
-  --glass-shadow: 0 8px 32px rgba(0,0,0,.22);
-  --sidebar-bg: rgba(20,20,23,.92);
-  --text-main: #f2f2f7;
-  --text-muted: #a1a1aa;
-  --page-bg: #111216;
+  --glass-bg: rgba(12, 18, 30, 0.68);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-hover: rgba(56, 189, 248, 0.38);
+  --glass-shadow: 0 18px 48px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  --sidebar-bg: rgba(9, 14, 24, 0.82);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.3);
+  --page-bg: #07090e;
+  --card-bg: rgba(13, 20, 36, 0.72);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --neon-cyan: #00f0ff;
+  --neon-emerald: #00e676;
+  --neon-violet: #a855f7;
+  --neon-rose: #ff3366;
+  --neon-amber: #f59e0b;
 }
+
+/* Ambient Floating Liquid Mesh Glows */
+.ambient-mesh {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.ambient-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(140px);
+  opacity: 0.32;
+  animation: floatOrb 25s infinite alternate ease-in-out;
+}
+.orb-1 { width: 550px; height: 550px; background: radial-gradient(circle, #0ea5e9 0%, transparent 70%); top: -12%; left: 10%; }
+.orb-2 { width: 480px; height: 480px; background: radial-gradient(circle, #8b5cf6 0%, transparent 70%); top: 30%; right: 4%; animation-delay: -8s; }
+.orb-3 { width: 420px; height: 420px; background: radial-gradient(circle, #10b981 0%, transparent 70%); bottom: -6%; left: 30%; animation-delay: -15s; }
+.orb-4 { width: 380px; height: 380px; background: radial-gradient(circle, #0284c7 0%, transparent 70%); top: 65%; left: -6%; animation-delay: -21s; }
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(45px, -35px) scale(1.08); }
+  100% { transform: translate(-35px, 45px) scale(0.94); }
+}
+
+/* Typography Overrides */
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  letter-spacing: -0.012em;
+}
+.font-mono-numbers,
+.market-table td,
+#stock-price,
+.metric-val,
+.price-num,
+[data-mono] {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
 * { box-sizing: border-box; }
 html, body { background: var(--page-bg); color: var(--text-main); min-height: 100%; }
 body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, system-ui, sans-serif; background-image: radial-gradient(at 0 0, rgba(10,132,255,.06), transparent 42%); }
@@ -29,7 +95,9 @@ html[data-theme="light"] input:not([type="checkbox"]), html.light input:not([typ
 html[data-theme="dark"] input:not([type="checkbox"]), html.dark input:not([type="checkbox"]), html[data-theme="dark"] textarea, html.dark textarea, html[data-theme="dark"] select, html.dark select { background-color:rgba(44,44,46,.9); color:var(--text-main); }
 button, input, textarea, select { font: inherit; }
 button:not([class*="h-"]):not([class*="w-"]):not(.dock-btn):not(.series-toggle-pill):not(.forecast-horizon-btn):not(.forecast-view-pill):not(.chat-mode-btn):not(.code-copy-btn):not(.news-action-btn) { min-height: 36px; }
-.glass-panel, .chat-bubble-ai, .metric-card { background: var(--glass-bg); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
+.glass-panel, .chat-bubble-ai, .metric-card { background: var(--glass-bg); backdrop-filter: blur(28px) saturate(190%); -webkit-backdrop-filter: blur(28px) saturate(190%); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, box-shadow 0.22s ease; }
+.glass-panel:hover, .metric-card:hover { border-color: var(--glass-border-hover); }
+html.dark .glass-panel:hover, html.dark .metric-card:hover { box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.75), inset 0 1px 0 0 rgba(255, 255, 255, 0.18); }
 .glass-sidebar { background: var(--sidebar-bg); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border-color: var(--glass-border); }
 .nav-item { transition: background .22s cubic-bezier(.32,.72,0,1), color .22s; min-height: 46px; }
 .nav-item:hover { background: rgba(127,137,154,.12); }

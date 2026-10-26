@@ -6,3 +6,7 @@ __pycache__/
 .pytest_cache/
 *.log
 .DS_Store
+*.db
+*.sqlite*
+.env
+

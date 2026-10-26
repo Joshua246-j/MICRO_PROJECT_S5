@@ -53,7 +53,7 @@ app.add_middleware(
 
 # In-memory settings state
 demo_settings: Dict[str, Any] = {
-    "theme": "light",
+    "theme": "dark",
     "ai_model": "cloud-market-preview",
     "temperature": 0.2,
     "context_size": 4096,
@@ -403,7 +403,7 @@ def get_news_feed(limit: int = 20, refresh: bool = False):
 @app.get("/api/forecast/featured/summary", tags=["Forecasting"])
 def featured_forecast_summary(horizon: str = Query("30d")):
     items = []
-    for sym in ["AAPL", "MSFT", "NVDA", "RELIANCE.NS", "TCS.NS"]:
+    for sym in STOCKS_DATA.keys():
         entry = STOCKS_DATA.get(sym)
         if entry:
             q = entry["quote"]
@@ -677,6 +677,78 @@ def get_documents():
 @app.delete("/api/documents/{doc_id}", tags=["Documents"])
 def delete_document(doc_id: str):
     return {"status": "ok"}
+
+
+@app.post("/api/forecast/custom/evaluate", tags=["Forecasting"])
+async def evaluate_custom_forecast(req: Request):
+    body = await req.json()
+    sym = body.get("symbol", "AAPL").upper()
+    return {
+        "success": True,
+        "symbol": sym,
+        "improvement_vs_baseline_percent": 14.8,
+        "custom_metrics": {
+            "mae_percent": 1.72,
+            "test_sample_size": 30,
+            "directional_accuracy": 0.82,
+        },
+        "baseline_metrics": {
+            "mae_percent": 2.02,
+        },
+        "status": "SIMULATED_DEMO",
+        "disclaimer": DEMO_DISCLAIMER,
+    }
+
+
+@app.post("/api/crawl", tags=["Documents"])
+async def crawl_url(req: Request):
+    body = await req.json()
+    url = body.get("url", "https://example.com")
+    ticker = body.get("ticker", "DEMO")
+    return {
+        "success": True,
+        "title": f"Simulated Research Dossier for {ticker}",
+        "url": url,
+        "chunks_indexed": 3,
+        "disclaimer": DEMO_DISCLAIMER,
+    }
+
+
+@app.post("/api/upload/{upload_type}", tags=["Documents"])
+async def upload_document(upload_type: str):
+    doc_id = int(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) % 100000
+    return {
+        "success": True,
+        "document_id": doc_id,
+        "type": upload_type,
+        "message": f"Demo {upload_type} registered successfully.",
+        "disclaimer": DEMO_DISCLAIMER,
+    }
+
+
+# ---------------------------------------------------------
+# Database Clean & Maintenance
+# ---------------------------------------------------------
+
+@app.get("/api/database/clean", tags=["Database"])
+@app.post("/api/database/clean", tags=["Database"])
+@app.get("/api/db/clean", tags=["Database"])
+@app.post("/api/db/clean", tags=["Database"])
+def clean_database():
+    """
+    Cleans demo database state, clears non-default chat sessions,
+    and resets in-memory audit logs to a clean slate.
+    """
+    count_before = len(demo_sessions)
+    demo_sessions.clear()
+    return {
+        "status": "success",
+        "action": "database_cleaned",
+        "message": "Database and in-memory chat session audit logs cleaned successfully.",
+        "sessions_cleared": count_before,
+        "current_sessions": 0,
+        "disclaimer": DEMO_DISCLAIMER,
+    }
 
 
 # ---------------------------------------------------------

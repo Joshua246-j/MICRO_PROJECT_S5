@@ -24,6 +24,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir --default-timeout=100 -r requirements.txt
 
 # Copy only demo application and static assets
+COPY main.py ./
 COPY demo_server.py ./
 COPY demo_data ./demo_data
 COPY static ./static
