@@ -1,21 +1,23 @@
 """
 StockAI Terminal — Complete Demo Edition Server
-Serves the exact full-featured UI with deterministic simulated market data fixtures.
-Eliminates all heavy ML, LLM (Ollama), and database dependencies for portable Docker,
-Kubernetes (Minikube), and Render cloud hosting.
+Serves the full-featured Stock-rag research terminal UI with deterministic simulated market data,
+forecasting projections, financial news, and interactive simulated AI chat.
+Zero Ollama, PyTorch, FAISS, or heavy ML dependencies. Portable for Docker, Minikube, and Render.
 """
 
+import asyncio
+import datetime
 import json
 import logging
 import os
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("stockai-demo")
@@ -61,6 +63,7 @@ demo_settings: Dict[str, Any] = {
     "top_k": 40,
     "ui_density": "default",
     "request_timeout": 30,
+    "default_chat_mode": "general",
     "disclaimer": DEMO_DISCLAIMER,
 }
 
@@ -93,7 +96,69 @@ simulated_news = [
         "summary": "Simulated analysis: Central bank liquidity operations remain stable across US and Asian equity sessions.",
         "disclaimer": DEMO_DISCLAIMER,
     },
+    {
+        "title": "Cloud Infrastructure Spending Projected to Outpace Inflation Rates (Simulated)",
+        "publisher": "Wall Street Journal (Demo)",
+        "link": "https://example.com/demo-news-4",
+        "published": "2026-10-26T08:45:00Z",
+        "retrieved_at": "2026-10-26T15:00:00Z",
+        "summary": "Simulated report: Multi-cloud deployments and localized inference architectures drive sustained demand.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
 ]
+
+# In-memory simulated chat sessions
+demo_sessions: Dict[str, Dict[str, Any]] = {
+    "demo-session-1": {
+        "session_id": "demo-session-1",
+        "title": "AAPL Technical & Price Action Review (Demo)",
+        "created_at": "2026-10-26T10:00:00Z",
+        "is_pinned": True,
+        "messages": [
+            {
+                "id": "msg-1",
+                "role": "user",
+                "content": "What is the current technical setup and price action for AAPL?",
+            },
+            {
+                "id": "msg-2",
+                "role": "assistant",
+                "content": (
+                    "**[StockAI Terminal — Simulated Response]**\n\n"
+                    "Apple Inc. (**AAPL**) is currently trading at **$208.55** (+0.53%) on simulated demo data.\n\n"
+                    "- **RSI (14)**: 56.8 (Neutral-to-Bullish momentum)\n"
+                    "- **MACD**: Positive crossover with a 0.27 histogram expansion\n"
+                    "- **Support & Resistance**: Immediate floor at $202.10 with technical ceiling near $225.80\n"
+                    "- **Volume**: 48.2M shares transacted\n\n"
+                    "> *Notice: This is a deterministic simulation in DevOps demo mode without Ollama or external LLM models.*"
+                ),
+            },
+        ],
+    },
+    "demo-session-2": {
+        "session_id": "demo-session-2",
+        "title": "Global Semiconductor Outlook (Demo)",
+        "created_at": "2026-10-26T11:00:00Z",
+        "is_pinned": False,
+        "messages": [
+            {
+                "id": "msg-3",
+                "role": "user",
+                "content": "How are semiconductor valuation multiples holding up across the sector?",
+            },
+            {
+                "id": "msg-4",
+                "role": "assistant",
+                "content": (
+                    "**[StockAI Terminal — Simulated Response]**\n\n"
+                    "Leading semiconductor equities (e.g. **NVDA** at $120.28) show robust revenue multiple support, driven by datacenter accelerator demand and sovereign AI investments.\n\n"
+                    "Valuation metrics remain elevated with forward P/E at 52.4x, supported by deterministic 90-day volume expansion.\n\n"
+                    "> *Notice: Simulated demonstration data. No live financial advice.*"
+                ),
+            },
+        ],
+    },
+}
 
 
 # ---------------------------------------------------------
@@ -183,7 +248,6 @@ async def update_settings(req: Request):
 @app.get("/api/symbols/resolve/{symbol}", tags=["Market Data"])
 def resolve_symbol(symbol: str):
     norm_symbol = symbol.strip().upper()
-    is_valid = norm_symbol in STOCKS_DATA or any(k.startswith(norm_symbol) for k in STOCKS_DATA)
     resolved = norm_symbol if norm_symbol in STOCKS_DATA else "AAPL"
     return {
         "valid": True,
@@ -333,7 +397,7 @@ def get_news_feed(limit: int = 20, refresh: bool = False):
 
 
 # ---------------------------------------------------------
-# Forecasting Showcase Endpoints
+# Forecasting Projections (Full UI Alignment)
 # ---------------------------------------------------------
 
 @app.get("/api/forecast/featured/summary", tags=["Forecasting"])
@@ -375,29 +439,85 @@ def get_forecast(
     norm_symbol = symbol.strip().upper()
     stock_entry = STOCKS_DATA.get(norm_symbol) or STOCKS_DATA.get("AAPL")
     price = stock_entry["quote"]["price"]
+    currency = stock_entry["quote"].get("currency", "USD")
+
+    # Generate realistic projected trajectory path (15 sessions into future)
+    start_date = datetime.date(2026, 10, 26)
+    curr = start_date
+    projection_path = []
+    for i in range(15):
+        while curr.weekday() >= 5:
+            curr += datetime.timedelta(days=1)
+        p_step = round(price * (1 + 0.0022 * (i + 1)), 2)
+        projection_path.append({
+            "date": curr.isoformat(),
+            "price": p_step,
+            "upper": round(p_step * 1.035, 2),
+            "lower": round(p_step * 0.965, 2),
+        })
+        curr += datetime.timedelta(days=1)
+
+    target_price = projection_path[-1]["price"]
+    lower_bound = projection_path[-1]["lower"]
+    upper_bound = projection_path[-1]["upper"]
+    expected_ret = round(((target_price - price) / price) * 100, 2)
+
     return {
         "success": True,
         "symbol": norm_symbol,
-        "model": "historical_drift",
+        "currency": currency,
+        "current_price": price,
+        "last_bar_at": "2026-10-23",
+        "horizon": 30,
         "selected_model": "historical_drift",
-        "target_price": round(price * 1.025, 2),
-        "expected_return": "+2.50%",
-        "direction": "bullish",
-        "probability": "84%",
-        "mae": "1.85",
-        "confidence": confidence,
-        "horizon": horizon,
-        "lower_bound": round(price * 0.96, 2),
-        "upper_bound": round(price * 1.09, 2),
-        "data_status": "SIMULATED_DEMO",
-        "disclaimer": DEMO_DISCLAIMER,
+        "model_name": "Historical Drift (Simulated)",
+        "directional_label": "Bullish Edge",
+        "directional_probability": 0.84,
+        "interval": {
+            "expected_price": target_price,
+            "lower_bound_price": lower_bound,
+            "upper_bound_price": upper_bound,
+            "expected_return_percent": expected_ret,
+            "confidence_percent": 80,
+        },
+        "chart_data": {
+            "target_date": projection_path[-1]["date"],
+            "projection_path": projection_path,
+        },
+        "validation": {
+            "mae_percent": 1.85,
+            "beats_naive_baseline": True,
+            "improvement_vs_naive_percent": 14.2,
+        },
+        "system_health": {"latency_ms": 1.2},
+        "hardware": {
+            "status": "ready",
+            "cpu_cores": 4,
+            "cpu_percent": 12,
+            "ram_available_gb": 4.8,
+            "gpu_available": False,
+        },
+        "freshness": "FRESH",
         "disagreement": False,
         "model_metadata": {
             "historical_drift": {
-                "name": "Historical Drift (Simulated Demo)",
+                "short_name": "Historical Drift",
+                "name": "Empirical Baseline Drift Model (Simulated)",
                 "description": "Deterministic baseline drift model for lightweight demonstration.",
             }
         },
+        "third_party_forecasts": {
+            "analyst_consensus": {
+                "available": True,
+                "reliability_badge": "External Consensus",
+                "implied_return_percent": 8.4,
+                "target_price": round(price * 1.084, 2),
+                "rating": "Moderate Buy",
+                "target_high": round(price * 1.20, 2),
+                "target_low": round(price * 0.95, 2),
+            }
+        },
+        "disclaimer": DEMO_DISCLAIMER,
     }
 
 
@@ -418,13 +538,120 @@ def forecast_system_revalidate():
 
 
 # ---------------------------------------------------------
-# Chat & RAG Document Fallback Endpoints
+# Interactive Simulated AI Chat Endpoints
 # ---------------------------------------------------------
 
 @app.get("/api/chat/sessions", tags=["Chat"])
-def get_chat_sessions():
-    return {"sessions": []}
+def get_chat_sessions(limit: int = 50):
+    sessions_list = list(demo_sessions.values())
+    return {"sessions": sessions_list}
 
+
+@app.get("/api/chat/sessions/{session_id}", tags=["Chat"])
+def get_chat_session(session_id: str):
+    sess = demo_sessions.get(session_id)
+    if not sess:
+        return {
+            "session_id": session_id,
+            "title": "New Conversation (Demo)",
+            "messages": [],
+            "document_ids": [],
+            "dataset_id": None,
+        }
+    return sess
+
+
+@app.put("/api/chat/sessions/{session_id}/pin", tags=["Chat"])
+async def pin_chat_session(session_id: str, req: Request):
+    body = await req.json()
+    if session_id in demo_sessions:
+        demo_sessions[session_id]["is_pinned"] = body.get("is_pinned", True)
+    return {"status": "ok"}
+
+
+@app.put("/api/chat/sessions/{session_id}/rename", tags=["Chat"])
+async def rename_chat_session(session_id: str, req: Request):
+    body = await req.json()
+    if session_id in demo_sessions:
+        demo_sessions[session_id]["title"] = body.get("title", "Renamed Chat")
+    return {"status": "ok"}
+
+
+@app.delete("/api/chat/sessions/{session_id}", tags=["Chat"])
+def delete_chat_session(session_id: str):
+    demo_sessions.pop(session_id, None)
+    return {"status": "deleted"}
+
+
+@app.post("/api/chat/sessions/{session_id}/branch", tags=["Chat"])
+def branch_chat_session(session_id: str):
+    new_id = f"branch-{uuid.uuid4().hex[:6]}"
+    demo_sessions[new_id] = {
+        "session_id": new_id,
+        "title": "Branched Conversation (Demo)",
+        "created_at": datetime.datetime.now().isoformat(),
+        "parent_session_id": session_id,
+        "messages": [],
+    }
+    return {"session_id": new_id, "status": "ok"}
+
+
+@app.post("/api/chat/stream", tags=["Chat"])
+async def chat_stream(req: Request):
+    body = await req.json()
+    user_msg = body.get("message", "Market analysis query")
+    sym = body.get("symbol", "AAPL")
+    session_id = body.get("session_id") or f"session-{uuid.uuid4().hex[:6]}"
+
+    # Fetch symbol details if available
+    stock = STOCKS_DATA.get(sym.upper()) or STOCKS_DATA.get("AAPL")
+    q = stock["quote"]
+
+    simulated_reply = (
+        f"**[StockAI Terminal — Interactive Demo Response]**\n\n"
+        f"Here is the simulated equity overview for **{q['company_name']} ({q['symbol']})**:\n\n"
+        f"- **Current Demo Price**: {q['currency']} {q['price']:.2f} ({'+' if q['change'] >= 0 else ''}{q['change_percent']:.2f}%)\n"
+        f"- **Day Trading Range**: {q['currency']} {q['day_low']:.2f} – {q['day_high']:.2f}\n"
+        f"- **Trading Volume**: {q['volume']:,} shares\n"
+        f"- **Technical Indicator**: RSI (14) = 56.8 | MACD = +1.45 (Neutral-Bullish Bias)\n"
+        f"- **Analyst Target (Simulated)**: {q['currency']} {round(q['price'] * 1.084, 2)} (Moderate Buy consensus)\n\n"
+        f"> **Notice**: *You are interacting with the StockAI Terminal Demo Edition. "
+        f"This response is generated by a lightweight simulated engine (<60MB container footprint) "
+        f"without requiring local Ollama LLM downloads or GPU acceleration.*"
+    )
+
+    async def event_generator():
+        # Stream chunks simulating AI tokens
+        words = simulated_reply.split(" ")
+        for i in range(0, len(words), 3):
+            chunk = " ".join(words[i : i + 3]) + " "
+            yield f"event: token\ndata: {json.dumps({'text': chunk})}\n\n"
+            await asyncio.sleep(0.04)
+
+        done_payload = {
+            "response": simulated_reply,
+            "session_id": session_id,
+            "user_message_id": f"msg-u-{uuid.uuid4().hex[:4]}",
+            "assistant_message_id": f"msg-a-{uuid.uuid4().hex[:4]}",
+        }
+        yield f"event: done\ndata: {json.dumps(done_payload)}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+@app.get("/api/chat", tags=["Chat"])
+@app.post("/api/chat", tags=["Chat"])
+def standard_chat_notice():
+    return {
+        "status": "disabled_in_demo",
+        "response": "Interactive streaming chat is active at /api/chat/stream.",
+        "disclaimer": DEMO_DISCLAIMER,
+    }
+
+
+# ---------------------------------------------------------
+# Models & Document Handlers
+# ---------------------------------------------------------
 
 @app.get("/api/models", tags=["Chat"])
 def get_models():
@@ -452,22 +679,8 @@ def delete_document(doc_id: str):
     return {"status": "ok"}
 
 
-@app.get("/api/chat", tags=["Chat"])
-@app.post("/api/chat", tags=["Chat"])
-def chat_response():
-    return {
-        "response": (
-            "Demo Notice: Local Ollama LLM and heavy document RAG models are omitted "
-            "from this micro-project container to keep RAM usage under 60MB and ensure fast portability."
-        ),
-        "status": "disabled_in_demo",
-        "model": "cloud-market-preview",
-        "disclaimer": DEMO_DISCLAIMER,
-    }
-
-
 # ---------------------------------------------------------
-# Static File & UI Serving
+# Static File & UI Shell Serving
 # ---------------------------------------------------------
 
 if STATIC_DIR.exists():
