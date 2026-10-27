@@ -67,42 +67,133 @@ demo_settings: Dict[str, Any] = {
     "disclaimer": DEMO_DISCLAIMER,
 }
 
-# In-memory simulated news
+# In-memory simulated news (Timely, institutional-grade headlines for US Tech & NSE Bluechips)
+now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 simulated_news = [
     {
-        "title": "Tech Markets Rally on Robust Enterprise AI and Cloud Demand (Simulated)",
-        "publisher": "Financial Times (Demo)",
-        "link": "https://example.com/demo-news-1",
-        "published": "2026-10-26T14:00:00Z",
-        "retrieved_at": "2026-10-26T15:00:00Z",
-        "summary": "Simulated market report: Tech equities demonstrate strength as enterprise cloud spending accelerates.",
-        "disclaimer": DEMO_DISCLAIMER,
-    },
-    {
-        "title": "Global Semiconductor Sector Sees Continued Momentum in Q4 (Simulated)",
-        "publisher": "Reuters (Demo)",
-        "link": "https://example.com/demo-news-2",
-        "published": "2026-10-26T12:30:00Z",
-        "retrieved_at": "2026-10-26T15:00:00Z",
-        "summary": "Simulated report: Chipmakers report steady order backlogs and expansion across global manufacturing hubs.",
-        "disclaimer": DEMO_DISCLAIMER,
-    },
-    {
-        "title": "Federal Reserve & Reserve Bank Maintain Steady Monetary Stance (Simulated)",
+        "title": "NVIDIA AI Accelerator Order Book Surges to Multi-Year Record Amid Datacenter Expansion (Simulated)",
         "publisher": "Bloomberg (Demo)",
-        "link": "https://example.com/demo-news-3",
-        "published": "2026-10-26T10:15:00Z",
-        "retrieved_at": "2026-10-26T15:00:00Z",
-        "summary": "Simulated analysis: Central bank liquidity operations remain stable across US and Asian equity sessions.",
+        "ticker": "NVDA",
+        "market": "us",
+        "category": "AI & Semiconductors",
+        "link": "https://example.com/demo-news-nvda",
+        "url": "https://example.com/demo-news-nvda",
+        "published": "2026-10-27T05:30:00Z",
+        "published_at": "2026-10-27T05:30:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "Hyperscale cloud providers expand multi-gigawatt datacenter infrastructure commitments, boosting forward Blackwell architecture orders and margins.",
         "disclaimer": DEMO_DISCLAIMER,
     },
     {
-        "title": "Cloud Infrastructure Spending Projected to Outpace Inflation Rates (Simulated)",
+        "title": "Microsoft Azure Cloud Surpasses Consensus Projections on Copilot Enterprise Adoption (Simulated)",
+        "publisher": "Financial Times (Demo)",
+        "ticker": "MSFT",
+        "market": "us",
+        "category": "Enterprise Cloud",
+        "link": "https://example.com/demo-news-msft",
+        "url": "https://example.com/demo-news-msft",
+        "published": "2026-10-27T05:00:00Z",
+        "published_at": "2026-10-27T05:00:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "Enterprise AI seat activations exceed 45 million across Global 2000 organizations, accelerating commercial cloud gross margin expansion.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "Reliance Industries Outlines Multi-Year Retail & Jio 5G Ecosystem Monetization (Simulated)",
+        "publisher": "Economic Times (Demo)",
+        "ticker": "RELIANCE.NS",
+        "market": "india",
+        "category": "Energy & Retail",
+        "link": "https://example.com/demo-news-reliance",
+        "url": "https://example.com/demo-news-reliance",
+        "published": "2026-10-27T04:30:00Z",
+        "published_at": "2026-10-27T04:30:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "Strategic expansion in omnichannel retail footprint and 5G subscriber ARPU gains support strong consolidated operating cash flows.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "Apple Expands Services Margin and Edge Silicon Roadmap Ahead of Q4 Release (Simulated)",
         "publisher": "Wall Street Journal (Demo)",
-        "link": "https://example.com/demo-news-4",
-        "published": "2026-10-26T08:45:00Z",
-        "retrieved_at": "2026-10-26T15:00:00Z",
-        "summary": "Simulated report: Multi-cloud deployments and localized inference architectures drive sustained demand.",
+        "ticker": "AAPL",
+        "market": "us",
+        "category": "Consumer Tech",
+        "link": "https://example.com/demo-news-aapl",
+        "url": "https://example.com/demo-news-aapl",
+        "published": "2026-10-27T04:00:00Z",
+        "published_at": "2026-10-27T04:00:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "App Store, iCloud storage, and device subscription services revenue reaches new all-time quarterly high with stable hardware replacement cycles.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "Alphabet Demonstrates TPU v6 Efficiency and Gemini Ultra Enterprise Scaling (Simulated)",
+        "publisher": "Reuters (Demo)",
+        "ticker": "GOOGL",
+        "market": "us",
+        "category": "AI & Cloud",
+        "link": "https://example.com/demo-news-googl",
+        "url": "https://example.com/demo-news-googl",
+        "published": "2026-10-27T03:30:00Z",
+        "published_at": "2026-10-27T03:30:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "Next-generation custom silicon yields 2.8x higher compute density per watt, expanding Google Cloud enterprise AI capture and search monetization.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "HDFC Bank Records Strong Deposit Inflows and Asset Quality Resilience in Q3 (Simulated)",
+        "publisher": "Livemint (Demo)",
+        "ticker": "HDFCBANK.NS",
+        "market": "india",
+        "category": "Banking & Credit",
+        "link": "https://example.com/demo-news-hdfc",
+        "url": "https://example.com/demo-news-hdfc",
+        "published": "2026-10-27T03:00:00Z",
+        "published_at": "2026-10-27T03:00:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "Credit disbursement across retail and commercial loans exhibits steady double-digit growth with net non-performing assets at historic lows.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "TCS Wins Landmark Multi-Billion Dollar European Digital Transformation Contract (Simulated)",
+        "publisher": "Business Standard (Demo)",
+        "ticker": "TCS.NS",
+        "market": "india",
+        "category": "IT Services",
+        "link": "https://example.com/demo-news-tcs",
+        "url": "https://example.com/demo-news-tcs",
+        "published": "2026-10-27T02:15:00Z",
+        "published_at": "2026-10-27T02:15:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "Tata Consultancy Services secures a 7-year strategic modernization engagement with a premier European financial and cloud institution.",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "Infosys Expands Generative AI Delivery Framework Topaz Across Global Clients (Simulated)",
+        "publisher": "CNBC (Demo)",
+        "ticker": "INFY.NS",
+        "market": "india",
+        "category": "IT Services",
+        "link": "https://example.com/demo-news-infy",
+        "url": "https://example.com/demo-news-infy",
+        "published": "2026-10-27T01:45:00Z",
+        "published_at": "2026-10-27T01:45:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "Active pipeline of enterprise GenAI engagements surpasses 250 deployments, bolstering large deal Total Contract Value (TCV).",
+        "disclaimer": DEMO_DISCLAIMER,
+    },
+    {
+        "title": "Federal Reserve & Reserve Bank Maintain Steady Monetary Liquidity Stance (Simulated)",
+        "publisher": "Bloomberg (Demo)",
+        "ticker": "MACRO",
+        "market": "us",
+        "category": "Macroeconomics",
+        "link": "https://example.com/demo-news-fed",
+        "url": "https://example.com/demo-news-fed",
+        "published": "2026-10-27T01:00:00Z",
+        "published_at": "2026-10-27T01:00:00Z",
+        "retrieved_at": "2026-10-27T05:45:00Z",
+        "summary": "Central bank policymakers signal balanced inflation trajectories and steady liquidity facilities across global sovereign bond markets.",
         "disclaimer": DEMO_DISCLAIMER,
     },
 ]
@@ -111,49 +202,83 @@ simulated_news = [
 demo_sessions: Dict[str, Dict[str, Any]] = {
     "demo-session-1": {
         "session_id": "demo-session-1",
-        "title": "AAPL Technical & Price Action Review (Demo)",
-        "created_at": "2026-10-26T10:00:00Z",
+        "title": "NVDA vs MSFT Enterprise AI Moats (Demo)",
+        "created_at": "2026-10-27T05:15:00Z",
         "is_pinned": True,
         "messages": [
             {
                 "id": "msg-1",
                 "role": "user",
-                "content": "What is the current technical setup and price action for AAPL?",
+                "content": "Compare NVIDIA vs Microsoft enterprise AI market share and valuation multiples.",
             },
             {
                 "id": "msg-2",
                 "role": "assistant",
                 "content": (
-                    "**[StockAI Terminal — Simulated Response]**\n\n"
-                    "Apple Inc. (**AAPL**) is currently trading at **$208.55** (+0.53%) on simulated demo data.\n\n"
-                    "- **RSI (14)**: 56.8 (Neutral-to-Bullish momentum)\n"
-                    "- **MACD**: Positive crossover with a 0.27 histogram expansion\n"
-                    "- **Support & Resistance**: Immediate floor at $202.10 with technical ceiling near $225.80\n"
-                    "- **Volume**: 48.2M shares transacted\n\n"
-                    "> *Notice: This is a deterministic simulation in DevOps demo mode without Ollama or external LLM models.*"
+                    "**[StockAI Terminal — Neural Research Synthesis]**\n\n"
+                    "Comparative breakdown for **NVIDIA (NVDA)** vs **Microsoft (MSFT)**:\n\n"
+                    "1. **Valuation Multiples**:\n"
+                    "   - **NVDA**: Price $141.50 | Forward P/E 34.2x | Market Cap $3.48T | 24h Vol 57.5M\n"
+                    "   - **MSFT**: Price $432.80 | Forward P/E 32.6x | Market Cap $3.22T | 24h Vol 22.8M\n\n"
+                    "2. **Competitive Moats**:\n"
+                    "   - **Hardware/CUDA Layer**: NVIDIA maintains ~88% of datacenter accelerator capacity with CUDA developer lock-in.\n"
+                    "   - **Application/Platform Layer**: Microsoft Azure and M365 Copilot dominate enterprise workflows with over 45M paid seats.\n\n"
+                    "3. **Forecast Horizon (5D/20D)**:\n"
+                    "   - NVDA models project +4.8% walk-forward return edge with 88% conformal directional confidence.\n"
+                    "   - MSFT models project +2.4% steady return edge with 82% confidence.\n\n"
+                    "> *Notice: Simulated demonstration response generated in DevOps demo mode without heavy PyTorch or Ollama dependencies.*"
                 ),
             },
         ],
     },
     "demo-session-2": {
         "session_id": "demo-session-2",
-        "title": "Global Semiconductor Outlook (Demo)",
-        "created_at": "2026-10-26T11:00:00Z",
-        "is_pinned": False,
+        "title": "Reliance Retail & Jio 5G Valuation (Demo)",
+        "created_at": "2026-10-27T04:45:00Z",
+        "is_pinned": True,
         "messages": [
             {
                 "id": "msg-3",
                 "role": "user",
-                "content": "How are semiconductor valuation multiples holding up across the sector?",
+                "content": "Analyze Reliance Industries retail and telecoms growth drivers in India.",
             },
             {
                 "id": "msg-4",
                 "role": "assistant",
                 "content": (
-                    "**[StockAI Terminal — Simulated Response]**\n\n"
-                    "Leading semiconductor equities (e.g. **NVDA** at $120.28) show robust revenue multiple support, driven by datacenter accelerator demand and sovereign AI investments.\n\n"
-                    "Valuation metrics remain elevated with forward P/E at 52.4x, supported by deterministic 90-day volume expansion.\n\n"
-                    "> *Notice: Simulated demonstration data. No live financial advice.*"
+                    "**[StockAI Terminal — Neural Research Synthesis]**\n\n"
+                    "Executive analysis for **Reliance Industries Ltd. (RELIANCE.NS)**:\n\n"
+                    "- **Current Demo Price**: ₹2,985.40 (+0.84%)\n"
+                    "- **Valuation**: Market Cap ₹20.2T | P/E 26.4x | 52W Range: ₹2,420 – ₹3,217\n"
+                    "- **Key Catalysts**:\n"
+                    "  - *Jio Infocomm*: 5G monetization ramp with 490M+ total subscribers and rising ARPU.\n"
+                    "  - *Reliance Retail*: Pan-India grocery, consumer electronics, and e-commerce logistics scale.\n"
+                    "  - *Clean Energy Giga-Complex*: Solar and green hydrogen capex transitioning traditional refining margins.\n\n"
+                    "> *Notice: Deterministic prototype intelligence. Not live financial advice.*"
+                ),
+            },
+        ],
+    },
+    "demo-session-3": {
+        "session_id": "demo-session-3",
+        "title": "ML Quantitative Uncertainty Audit (Demo)",
+        "created_at": "2026-10-27T03:30:00Z",
+        "is_pinned": False,
+        "messages": [
+            {
+                "id": "msg-5",
+                "role": "user",
+                "content": "Explain how the point-in-time quantitative ML forecasts calculate uncertainty ranges.",
+            },
+            {
+                "id": "msg-6",
+                "role": "assistant",
+                "content": (
+                    "**[StockAI Terminal — Quantitative Model Audit]**\n\n"
+                    "The terminal employs a zero-leakage, walk-forward conformal prediction methodology:\n\n"
+                    "- **Residual-Based Bounds**: Empirical forecast error residuals from past non-overlapping validation folds establish the 80% coverage envelope.\n"
+                    "- **Lookahead Prevention**: Point-in-time feature engineering ensures training sets only access data timestamped prior to forecast cutoffs.\n"
+                    "- **Latency**: Evaluated in pure CPU NumPy routines with average execution time under 12ms."
                 ),
             },
         ],
@@ -401,23 +526,65 @@ def get_news_feed(limit: int = 20, refresh: bool = False):
 # ---------------------------------------------------------
 
 @app.get("/api/forecast/featured/summary", tags=["Forecasting"])
-def featured_forecast_summary(horizon: str = Query("30d")):
+def featured_forecast_summary(horizon: str = Query("5")):
     items = []
+    try:
+        digits = "".join(c for c in str(horizon) if c.isdigit())
+        h_val = int(digits) if digits else 5
+    except Exception:
+        h_val = 5
+
+    # Ticker-specific baseline expected return for 5D
+    base_momentum = {
+        "NVDA": {"ret_5d": 4.82, "prob": 0.88, "bias": "bullish"},
+        "RELIANCE.NS": {"ret_5d": 3.15, "prob": 0.85, "bias": "bullish"},
+        "MSFT": {"ret_5d": 2.44, "prob": 0.82, "bias": "bullish"},
+        "HDFCBANK.NS": {"ret_5d": 2.12, "prob": 0.81, "bias": "bullish"},
+        "GOOGL": {"ret_5d": 1.95, "prob": 0.78, "bias": "bullish"},
+        "AAPL": {"ret_5d": 1.80, "prob": 0.79, "bias": "bullish"},
+        "INFY.NS": {"ret_5d": 1.45, "prob": 0.76, "bias": "bullish"},
+        "TCS.NS": {"ret_5d": 1.20, "prob": 0.74, "bias": "bullish"},
+    }
+
+    scale = 0.25 if h_val <= 1 else (1.0 if h_val <= 5 else (2.4 if h_val <= 20 else 3.2))
+
     for sym in STOCKS_DATA.keys():
         entry = STOCKS_DATA.get(sym)
         if entry:
             q = entry["quote"]
-            p = q["price"]
+            p = float(q["price"])
+            curr = q.get("currency", "USD")
+            meta = base_momentum.get(sym, {"ret_5d": 2.0, "prob": 0.80, "bias": "bullish"})
+            
+            exp_ret = round(meta["ret_5d"] * scale, 2)
+            target_p = round(p * (1.0 + exp_ret / 100.0), 2)
+            
+            # 5-point sparkline points from near current price to target price
+            step = (target_p - p) / 4.0
+            spark = [
+                round(p * 0.998, 2),
+                round(p + step * 0.9, 2),
+                round(p + step * 2.1, 2),
+                round(p + step * 3.2, 2),
+                target_p
+            ]
+
             items.append({
                 "symbol": sym,
                 "name": q.get("company_name", sym),
                 "current_price": p,
-                "forecast_mean": round(p * 1.025, 2),
-                "expected_return_pct": 2.50,
-                "direction": "bullish",
-                "confidence": "HIGH (SIMULATED)",
-                "model": "Simulated Demo Ensemble",
-                "horizon": horizon,
+                "forecast_mean": target_p,
+                "expected_price": target_p,
+                "expected_return_pct": exp_ret,
+                "expected_return_percent": exp_ret,
+                "directional_probability": meta["prob"],
+                "direction": meta["bias"],
+                "confidence": "HIGH (SIMULATED)" if meta["prob"] >= 0.80 else "MODERATE (SIMULATED)",
+                "sparkline_points": spark,
+                "last_bar_at": "2026-10-26",
+                "currency": curr,
+                "model": "Simulated Walk-Forward Ensemble",
+                "horizon": str(h_val),
                 "disclaimer": DEMO_DISCLAIMER,
             })
     return {

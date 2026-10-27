@@ -42,7 +42,7 @@
     <script defer src="/static/vendor/lucide.js"></script>
     <script defer src="/static/vendor/lightweight-charts.js"></script>
     
-    <link rel="stylesheet" href="/static/index.css?v=20261021-3">
+    <link rel="stylesheet" href="/static/index.css?v=20261027-4">
 </head>
 <body class="h-screen w-full flex flex-col overflow-hidden selection:bg-apple-blue selection:text-white">
 
@@ -58,15 +58,24 @@
     <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 backdrop-blur-md z-40 hidden" onclick="toggleSidebar(false)"></div>
 
     <!-- Persistent Modern Liquid Glass Demo Mode Disclosure Banner -->
-    <div id="demo-banner" class="bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border-b border-amber-500/25 text-amber-900 dark:text-amber-200 px-4 py-1.5 text-xs font-semibold text-center flex items-center justify-center gap-2 select-none shadow-xs shrink-0 z-50 backdrop-blur-md">
-        <span class="flex h-2 w-2 relative">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-        </span>
-        <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
-        <span class="tracking-wide">DEMO MODE — SIMULATED MARKET DATA — NOT LIVE PRICES</span>
-        <span class="hidden sm:inline text-amber-500/40">|</span>
-        <span class="hidden sm:inline font-mono text-[10px] bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">DevOps Micro-Project Demonstration</span>
+    <div id="demo-banner" class="bg-gradient-to-r from-amber-500/10 via-amber-500/15 to-amber-500/10 border-b border-amber-500/25 text-amber-900 dark:text-amber-300 px-3.5 py-1.5 text-xs font-semibold flex items-center justify-between select-none shadow-xs shrink-0 z-50 backdrop-blur-md">
+        <div class="hidden md:flex items-center gap-2">
+            <span class="flex h-2 w-2 relative">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span class="font-mono text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">Simulation Engine Active</span>
+        </div>
+        <div class="flex items-center justify-center gap-2 mx-auto md:mx-0">
+            <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+            <span class="tracking-wide font-bold">DEMO MODE — SIMULATED MARKET DATA — NOT LIVE PRICES</span>
+            <span class="hidden sm:inline text-amber-500/40">|</span>
+            <span class="hidden sm:inline font-mono text-[10px] bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full font-medium">DevOps Micro-Project Demonstration</span>
+        </div>
+        <div class="hidden lg:flex items-center gap-3 text-[10px] font-mono text-apple-gray">
+            <span class="inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Latency: 11ms</span>
+            <span class="bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded">Point-in-Time OOS</span>
+        </div>
     </div>
 
     <!-- Universal Modern Top Navigation Bar (Consistent across ALL pages) -->
@@ -249,29 +258,331 @@
             <!-- Left Data View -->
             <div class="flex-1 overflow-y-auto px-6 py-8 md:px-10 scroll-smooth pb-12" id="dashboard-view">
                 
-                <!-- Empty State -->
-                <div id="empty-state" class="mx-auto max-w-[1500px] space-y-7 animate-fade-in">
-                    <section class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                        <div><p class="mb-2 text-xs font-semibold uppercase tracking-[.18em] text-apple-blue">StockAI Terminal · High-Precision Research</p><h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Markets at a glance</h1><p class="mt-2 max-w-2xl text-sm text-apple-gray">Provider-backed prices, recent market coverage, and research tools in one workspace.</p></div>
-                        <button type="button" onclick="focusChat()" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start whitespace-nowrap rounded-2xl bg-apple-blue px-4 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5 hover:bg-blue-600 sm:self-auto"><i data-lucide="sparkles" class="h-4 w-4"></i> Ask AI</button>
+                <!-- Empty State / Core Terminal Landing Page -->
+                <div id="empty-state" class="mx-auto max-w-[1500px] space-y-6 animate-fade-in">
+                    
+                    <!-- Global Market Indices Scrolling Ticker Tape Ribbon -->
+                    <div class="ticker-tape-container glass-panel border border-black/[0.06] dark:border-white/[0.08] py-1 shadow-2xs" aria-label="Global Market Indices Ticker">
+                        <div class="ticker-tape-track">
+                            <!-- 10 Primary Benchmarks -->
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">S&amp;P 500</span> <span class="font-mono text-gray-700 dark:text-gray-300">5,864.67</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.41%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">NASDAQ 100</span> <span class="font-mono text-gray-700 dark:text-gray-300">18,518.61</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.63%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">DOW JONES</span> <span class="font-mono text-gray-700 dark:text-gray-300">42,387.57</span> <span class="badge-bearish px-1.5 py-0.5 rounded text-[10px] font-bold">▼ -0.33%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">NIFTY 50</span> <span class="font-mono text-gray-700 dark:text-gray-300">24,399.40</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.65%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">SENSEX</span> <span class="font-mono text-gray-700 dark:text-gray-300">80,081.98</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.76%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">CRUDE OIL (WTI)</span> <span class="font-mono text-gray-700 dark:text-gray-300">$71.78</span> <span class="badge-bearish px-1.5 py-0.5 rounded text-[10px] font-bold">▼ -0.48%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">GOLD (XAU)</span> <span class="font-mono text-gray-700 dark:text-gray-300">$2,748.20</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.32%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">US 10Y BOND</span> <span class="font-mono text-gray-700 dark:text-gray-300">4.24%</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">+0.03</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">BITCOIN</span> <span class="font-mono text-gray-700 dark:text-gray-300">$67,820</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +1.84%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">EUR/USD</span> <span class="font-mono text-gray-700 dark:text-gray-300">1.0825</span> <span class="badge-bearish px-1.5 py-0.5 rounded text-[10px] font-bold">▼ -0.12%</span></div>
+
+                            <!-- Duplicated items for seamless continuous infinite glide -->
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">S&amp;P 500</span> <span class="font-mono text-gray-700 dark:text-gray-300">5,864.67</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.41%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">NASDAQ 100</span> <span class="font-mono text-gray-700 dark:text-gray-300">18,518.61</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.63%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">DOW JONES</span> <span class="font-mono text-gray-700 dark:text-gray-300">42,387.57</span> <span class="badge-bearish px-1.5 py-0.5 rounded text-[10px] font-bold">▼ -0.33%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">NIFTY 50</span> <span class="font-mono text-gray-700 dark:text-gray-300">24,399.40</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.65%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">SENSEX</span> <span class="font-mono text-gray-700 dark:text-gray-300">80,081.98</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.76%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">CRUDE OIL (WTI)</span> <span class="font-mono text-gray-700 dark:text-gray-300">$71.78</span> <span class="badge-bearish px-1.5 py-0.5 rounded text-[10px] font-bold">▼ -0.48%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">GOLD (XAU)</span> <span class="font-mono text-gray-700 dark:text-gray-300">$2,748.20</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +0.32%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">US 10Y BOND</span> <span class="font-mono text-gray-700 dark:text-gray-300">4.24%</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">+0.03</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">BITCOIN</span> <span class="font-mono text-gray-700 dark:text-gray-300">$67,820</span> <span class="badge-bullish px-1.5 py-0.5 rounded text-[10px] font-bold">▲ +1.84%</span></div>
+                            <div class="ticker-tape-item"><span class="font-bold text-gray-900 dark:text-white">EUR/USD</span> <span class="font-mono text-gray-700 dark:text-gray-300">1.0825</span> <span class="badge-bearish px-1.5 py-0.5 rounded text-[10px] font-bold">▼ -0.12%</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Modern Wall-Street Surveillance Hero Banner -->
+                    <section class="glass-panel relative rounded-3xl p-6 sm:p-8 border border-black/[0.08] dark:border-white/[0.09] overflow-hidden shadow-lg">
+                        <div class="absolute -top-24 -right-24 w-96 h-96 bg-gradient-to-br from-sky-500/10 via-indigo-500/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
+                            <div class="max-w-3xl">
+                                <div class="flex flex-wrap items-center gap-2.5 mb-3">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span> StockAI Terminal · High-Precision Research
+                                    </span>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Dual Exchange (US &amp; NSE)
+                                    </span>
+                                    <span class="hidden sm:inline-flex items-center text-[10px] font-mono text-apple-gray">
+                                        Latency: &lt;12ms · Conformal Inference
+                                    </span>
+                                </div>
+                                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-[1.15]">
+                                    Markets at a glance
+                                </h1>
+                                <p class="mt-2.5 text-sm sm:text-base text-apple-gray leading-relaxed max-w-2xl">
+                                    Institutional-grade provider-backed pricing, deterministic valuation metrics, walk-forward ML return projections, and neural research synthesis.
+                                </p>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-wrap items-center gap-3 shrink-0">
+                                <button type="button" onclick="focusChat()" class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-500/25 transition-all hover:-translate-y-0.5 active:scale-95">
+                                    <i data-lucide="sparkles" class="h-4 w-4"></i> Ask AI Research
+                                </button>
+                                <button type="button" onclick="loadLandingOverview(true)" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] border border-black/[0.06] dark:border-white/[0.08] px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 transition-all active:scale-95">
+                                    <i data-lucide="refresh-cw" class="h-4 w-4 text-sky-500"></i> Refresh Feed
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Macro Market Pulse Metrics Ribbon (4 Cards) -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-6 mt-6 border-t border-black/[0.06] dark:border-white/[0.08]">
+                            <!-- Breadth -->
+                            <div class="p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex flex-col justify-between">
+                                <div class="flex items-center justify-between text-[11px] text-apple-gray font-semibold">
+                                    <span>Market Breadth</span>
+                                    <span class="text-emerald-500 font-bold">87.5% Bullish</span>
+                                </div>
+                                <div class="my-2 flex items-baseline gap-2">
+                                    <span class="text-lg font-bold text-gray-900 dark:text-white" id="pulse-breadth">7 Adv · 1 Dec</span>
+                                    <span class="text-[10px] text-emerald-500 font-semibold">▲ Strong</span>
+                                </div>
+                                <div class="h-1.5 w-full rounded-full bg-rose-500/30 overflow-hidden flex">
+                                    <div class="h-full bg-emerald-500 rounded-full" style="width: 87.5%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- 24h Volume -->
+                            <div class="p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex flex-col justify-between">
+                                <div class="flex items-center justify-between text-[11px] text-apple-gray font-semibold">
+                                    <span>Tracked 24h Volume</span>
+                                    <span class="text-sky-500 font-mono text-[10px]">Aggregated</span>
+                                </div>
+                                <div class="my-2 flex items-baseline gap-2">
+                                    <span class="text-lg font-bold text-gray-900 dark:text-white font-mono-numbers" id="pulse-volume">226.4M</span>
+                                    <span class="text-[10px] text-apple-gray">shares</span>
+                                </div>
+                                <div class="text-[10px] text-apple-gray truncate">Across 8 liquid core equities</div>
+                            </div>
+
+                            <!-- Volatility Regime (VIX) -->
+                            <div class="p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex flex-col justify-between">
+                                <div class="flex items-center justify-between text-[11px] text-apple-gray font-semibold">
+                                    <span>Volatility Regime</span>
+                                    <span class="badge-bullish px-1.5 py-0.2 rounded text-[9px] font-bold">Normal Vol</span>
+                                </div>
+                                <div class="my-2 flex items-baseline gap-2">
+                                    <span class="text-lg font-bold text-gray-900 dark:text-white font-mono-numbers">15.82</span>
+                                    <span class="text-[10px] text-emerald-500 font-semibold">▼ -2.4%</span>
+                                </div>
+                                <div class="text-[10px] text-apple-gray truncate">Stable equity risk premium</div>
+                            </div>
+
+                            <!-- Exchange Status -->
+                            <div class="p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06] flex flex-col justify-between">
+                                <div class="flex items-center justify-between text-[11px] text-apple-gray font-semibold">
+                                    <span>Exchange Status</span>
+                                    <span class="text-sky-500 font-mono text-[10px]">Real-time Sync</span>
+                                </div>
+                                <div class="my-2 flex flex-col gap-1 text-[11px]">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-gray-800 dark:text-gray-200">US (NASDAQ/NYSE):</span>
+                                        <span class="text-emerald-500 font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Open</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-gray-800 dark:text-gray-200">NSE (India):</span>
+                                        <span class="text-apple-gray font-medium">Session Close</span>
+                                    </div>
+                                </div>
+                                <div class="text-[10px] text-apple-gray truncate" id="pulse-last-updated">Updated recently</div>
+                            </div>
+                        </div>
                     </section>
 
-                    <section aria-labelledby="overview-heading">
-                        <div class="mb-3 flex items-center justify-between gap-3"><div><h2 id="overview-heading" class="text-base font-semibold">Market watch</h2><p class="mt-1 text-xs text-apple-gray">Eight actively followed US and Indian tickers · mini charts show recent closes</p></div><button type="button" onclick="loadLandingOverview(true)" class="min-h-11 rounded-xl px-3 text-sm font-medium text-apple-blue transition hover:bg-black/5 dark:hover:bg-white/5"><i data-lucide="refresh-cw" class="mr-1 inline h-4 w-4"></i>Refresh</button></div>
-                        <div id="landing-watch-grid" class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-live="polite"></div>
-                        <p id="watchlist-empty" class="hidden py-8 text-center text-sm text-apple-gray">Your watchlist is empty. Search for a company and select the star to add it.</p>
-                        <p id="landing-market-status" class="mt-2 text-xs text-apple-gray" role="status">Loading provider-backed market data…</p>
+                    <!-- Featured Market Mover Spotlight & Consensus Bar -->
+                    <section class="glass-panel relative rounded-3xl p-5 sm:p-6 border border-emerald-500/20 shadow-lg bg-gradient-to-r from-emerald-500/[0.04] via-transparent to-sky-500/[0.04] overflow-hidden" aria-label="Featured Market Spotlight">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+                            <!-- Left: Brand, Quote, Multiples -->
+                            <div class="space-y-3 max-w-2xl">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Market Leader · Session Volume Spotlight
+                                    </span>
+                                    <span class="text-[10px] font-mono text-apple-gray bg-black/[0.03] dark:bg-white/[0.05] px-2 py-0.5 rounded">NASDAQ · Primary Session Active</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-600 via-teal-700 to-teal-950 flex items-center justify-center font-bold text-sm tracking-tight text-emerald-200 ring-1 ring-emerald-400/25 shadow-md shadow-emerald-500/15 shrink-0">
+                                        NVDA
+                                    </div>
+                                    <div>
+                                        <div class="flex items-baseline gap-2.5">
+                                            <h3 class="text-lg sm:text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">NVIDIA Corporation</h3>
+                                            <span class="text-xs font-mono font-bold text-apple-gray">NVDA</span>
+                                            <span class="text-xl sm:text-2xl font-bold font-mono-numbers text-gray-900 dark:text-white ml-2">$141.50</span>
+                                            <span class="badge-bullish px-2 py-0.5 rounded-lg text-xs font-bold font-mono-numbers">▲ +$3.85 (+2.80%)</span>
+                                        </div>
+                                        <p class="text-xs text-apple-gray mt-0.5">Hyperscale Datacenter AI Accelerators &amp; Sovereign Silicon Infrastructure</p>
+                                    </div>
+                                </div>
+                                <!-- Financial Multiples Strip -->
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
+                                    <div class="spotlight-metric-pill">
+                                        <span class="text-[9px] uppercase tracking-wider font-semibold text-apple-gray">Forward P/E</span>
+                                        <span class="font-bold text-gray-900 dark:text-white font-mono-numbers">34.2x</span>
+                                    </div>
+                                    <div class="spotlight-metric-pill">
+                                        <span class="text-[9px] uppercase tracking-wider font-semibold text-apple-gray">Market Cap</span>
+                                        <span class="font-bold text-gray-900 dark:text-white font-mono-numbers">$3.48T</span>
+                                    </div>
+                                    <div class="spotlight-metric-pill">
+                                        <span class="text-[9px] uppercase tracking-wider font-semibold text-apple-gray">24h Volume</span>
+                                        <span class="font-bold text-gray-900 dark:text-white font-mono-numbers">57.5M shares</span>
+                                    </div>
+                                    <div class="spotlight-metric-pill">
+                                        <span class="text-[9px] uppercase tracking-wider font-semibold text-apple-gray">52W Range</span>
+                                        <span class="font-bold text-gray-900 dark:text-white font-mono-numbers">$45.60 – $144.42</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Consensus Gauge & Quick Actions -->
+                            <div class="lg:w-80 shrink-0 space-y-3 pt-3 lg:pt-0 lg:border-l lg:border-black/[0.06] lg:dark:border-white/[0.08] lg:pl-6">
+                                <div>
+                                    <div class="flex items-center justify-between text-xs mb-1.5">
+                                        <span class="text-[11px] font-semibold text-apple-gray">Wall Street Consensus</span>
+                                        <span class="badge-bullish px-2 py-0.2 rounded text-[10px] font-bold">84% Strong Buy</span>
+                                    </div>
+                                    <!-- 3-Segment Consensus Bar -->
+                                    <div class="consensus-bar-track">
+                                        <div class="consensus-segment-buy" style="width: 84%;" title="Buy: 84%"></div>
+                                        <div class="consensus-segment-hold" style="width: 13%;" title="Hold: 13%"></div>
+                                        <div class="consensus-segment-sell" style="width: 3%;" title="Sell: 3%"></div>
+                                    </div>
+                                    <div class="flex items-center justify-between text-[10px] text-apple-gray mt-1">
+                                        <span>Consensus Target: <strong class="text-gray-900 dark:text-white font-mono-numbers">$156.40</strong> (+10.5%)</span>
+                                        <span>42 Analysts</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap items-center gap-2 pt-1">
+                                    <button type="button" onclick="simulateSearch('NVDA')" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-apple-blue hover:bg-blue-600 text-white text-xs font-bold transition shadow-md shadow-blue-500/20 active:scale-95 flex-1">
+                                        <i data-lucide="line-chart" class="w-3.5 h-3.5"></i> Deep Dive NVDA
+                                    </button>
+                                    <button type="button" onclick="selectStockAndForecast('NVDA')" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-xs font-semibold text-gray-800 dark:text-gray-200 transition active:scale-95">
+                                        <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-indigo-500"></i> Forecast
+                                    </button>
+                                    <button type="button" onclick="startSuggestedChat('Provide an institutional valuation and margin analysis for NVIDIA NVDA')" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-black/[0.04] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] text-xs font-semibold text-gray-800 dark:text-gray-200 transition active:scale-95" title="Ask AI Copilot">
+                                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-500"></i> AI
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Active Market Watch Section & Category Tabs -->
+                    <section aria-labelledby="overview-heading" class="space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 id="overview-heading" class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Market watch</h2>
+                                    <span class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">8 Core Tickers</span>
+                                </div>
+                                <p class="mt-1 text-xs text-apple-gray">Actively followed US tech giants and premier Indian bluechips · Real-time quotes, day range, &amp; sparklines</p>
+                            </div>
+
+                            <!-- Category Filter Tabs -->
+                            <div class="flex flex-wrap items-center gap-1 p-1 rounded-2xl bg-black/[0.04] dark:bg-white/[0.05] border border-black/[0.06] dark:border-white/[0.08] text-xs font-semibold">
+                                <button type="button" class="market-category-btn px-3 py-1.5 rounded-xl transition-all active bg-white dark:bg-white/15 text-apple-blue shadow-2xs" data-category="all" onclick="filterMarketWatch('all')">All Equities (8)</button>
+                                <button type="button" class="market-category-btn px-3 py-1.5 rounded-xl transition-all text-apple-gray hover:text-text-main" data-category="us" onclick="filterMarketWatch('us')">US Tech (4)</button>
+                                <button type="button" class="market-category-btn px-3 py-1.5 rounded-xl transition-all text-apple-gray hover:text-text-main" data-category="india" onclick="filterMarketWatch('india')">NSE Bluechips (4)</button>
+                                <button type="button" class="market-category-btn px-3 py-1.5 rounded-xl transition-all text-apple-gray hover:text-text-main" data-category="gainers" onclick="filterMarketWatch('gainers')">Top Gainers</button>
+                                <button type="button" class="market-category-btn px-3 py-1.5 rounded-xl transition-all text-apple-gray hover:text-text-main flex items-center gap-1.5" data-category="watchlist" onclick="filterMarketWatch('watchlist')">
+                                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500"></i> Watchlist (<span id="category-watchlist-count">0</span>)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="landing-watch-grid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-live="polite"></div>
+                        <p id="watchlist-empty" class="hidden py-12 text-center text-sm text-apple-gray">Your watchlist is empty. Search for a company and select the star to add it.</p>
+                        <div class="flex items-center justify-between text-xs text-apple-gray px-1">
+                            <p id="landing-market-status" role="status">Loading provider-backed market data…</p>
+                            <button type="button" onclick="loadLandingOverview(true)" class="inline-flex items-center gap-1 font-semibold text-apple-blue hover:underline">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh quotes
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Industry Sector Momentum Surveillance -->
+                    <section class="glass-panel relative rounded-3xl p-5 md:p-6 border border-black/[0.06] dark:border-white/[0.08]" aria-labelledby="sectors-heading">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                            <div class="flex items-center gap-2.5">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-500/20 to-indigo-500/20 text-sky-500">
+                                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                                </span>
+                                <div>
+                                    <h3 id="sectors-heading" class="text-base font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
+                                        Industry Sector Momentum
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Broad Rally</span>
+                                    </h3>
+                                    <p class="text-[11px] text-apple-gray">Weighted capital flow &amp; performance across major represented sectors</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-apple-gray font-mono bg-black/[0.03] dark:bg-white/[0.05] px-2.5 py-1 rounded-lg border border-black/[0.04] dark:border-white/[0.06]">Simulated Benchmarks</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-xs">
+                            <!-- Sector 1: Technology & Software -->
+                            <div class="p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06]">
+                                <div class="flex items-center justify-between text-apple-gray font-medium text-[11px]">
+                                    <span class="truncate">Enterprise Tech</span>
+                                    <span class="badge-bullish px-1.5 py-0.2 rounded text-[10px] font-bold">▲ +2.48%</span>
+                                </div>
+                                <div class="mt-2 text-sm font-bold text-gray-900 dark:text-white">MSFT · GOOGL</div>
+                                <div class="mt-2 h-1 w-full rounded-full bg-emerald-500"></div>
+                            </div>
+
+                            <!-- Sector 2: AI & Silicon -->
+                            <div class="p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06]">
+                                <div class="flex items-center justify-between text-apple-gray font-medium text-[11px]">
+                                    <span class="truncate">AI &amp; Silicon</span>
+                                    <span class="badge-bullish px-1.5 py-0.2 rounded text-[10px] font-bold">▲ +0.55%</span>
+                                </div>
+                                <div class="mt-2 text-sm font-bold text-gray-900 dark:text-white">NVDA</div>
+                                <div class="mt-2 h-1 w-full rounded-full bg-emerald-500"></div>
+                            </div>
+
+                            <!-- Sector 3: Energy & Conglomerate -->
+                            <div class="p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06]">
+                                <div class="flex items-center justify-between text-apple-gray font-medium text-[11px]">
+                                    <span class="truncate">Energy &amp; Retail</span>
+                                    <span class="badge-bullish px-1.5 py-0.2 rounded text-[10px] font-bold">▲ +2.97%</span>
+                                </div>
+                                <div class="mt-2 text-sm font-bold text-gray-900 dark:text-white">RELIANCE.NS</div>
+                                <div class="mt-2 h-1 w-full rounded-full bg-emerald-500"></div>
+                            </div>
+
+                            <!-- Sector 4: Banking & Finance -->
+                            <div class="p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06]">
+                                <div class="flex items-center justify-between text-apple-gray font-medium text-[11px]">
+                                    <span class="truncate">Banking (India)</span>
+                                    <span class="badge-bullish px-1.5 py-0.2 rounded text-[10px] font-bold">▲ +0.82%</span>
+                                </div>
+                                <div class="mt-2 text-sm font-bold text-gray-900 dark:text-white">HDFCBANK.NS</div>
+                                <div class="mt-2 h-1 w-full rounded-full bg-emerald-500"></div>
+                            </div>
+
+                            <!-- Sector 5: IT Consulting & Digital -->
+                            <div class="p-3 rounded-2xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.04] dark:border-white/[0.06]">
+                                <div class="flex items-center justify-between text-apple-gray font-medium text-[11px]">
+                                    <span class="truncate">IT Services</span>
+                                    <span class="badge-bullish px-1.5 py-0.2 rounded text-[10px] font-bold">▲ +0.35%</span>
+                                </div>
+                                <div class="mt-2 text-sm font-bold text-gray-900 dark:text-white">TCS · INFY</div>
+                                <div class="mt-2 h-1 w-full rounded-full bg-emerald-500"></div>
+                            </div>
+                        </div>
                     </section>
 
                     <!-- Small-Size Quantitative ML Forecasts Section (Below stock charts, above news) -->
-                    <section class="glass-panel relative rounded-2xl p-4 sm:p-5 border border-indigo-500/15 shadow-xs bg-gradient-to-r from-indigo-500/[0.03] via-transparent to-purple-500/[0.02]" aria-labelledby="forecast-hub-heading">
+                    <section class="glass-panel relative rounded-3xl p-5 md:p-6 border border-indigo-500/15 shadow-xs bg-gradient-to-r from-indigo-500/[0.03] via-transparent to-purple-500/[0.02]" aria-labelledby="forecast-hub-heading">
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
                             <div class="flex items-center gap-2.5">
-                                <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600/10 text-indigo-600 dark:text-indigo-400">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-600/10 text-indigo-600 dark:text-indigo-400">
                                     <i data-lucide="brain-circuit" class="w-4 h-4"></i>
                                 </span>
                                 <div>
-                                    <h2 id="forecast-hub-heading" class="text-sm sm:text-base font-bold tracking-tight flex items-center gap-2">
+                                    <h2 id="forecast-hub-heading" class="text-sm sm:text-base font-bold tracking-tight flex items-center gap-2 text-gray-900 dark:text-white">
                                         Quantitative ML Forecasts
                                         <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Point-in-Time OOS</span>
                                     </h2>
@@ -281,12 +592,12 @@
                             <!-- Horizon selector -->
                             <div class="flex items-center gap-2">
                                 <span class="text-xs font-semibold text-apple-gray">Horizon:</span>
-                                <div class="flex gap-1 bg-black/5 dark:bg-white/5 p-0.5 rounded-lg text-xs" id="landing-forecast-horizon-selector">
-                                    <button type="button" class="px-2.5 py-1 rounded-md font-semibold transition-all landing-horizon-btn" data-horizon="1" onclick="changeLandingForecastHorizon(1)">1D</button>
-                                    <button type="button" class="px-2.5 py-1 rounded-md font-semibold transition-all landing-horizon-btn active bg-white dark:bg-black/50 text-indigo-600 dark:text-indigo-400 shadow-xs" data-horizon="5" onclick="changeLandingForecastHorizon(5)">5D</button>
-                                    <button type="button" class="px-2.5 py-1 rounded-md font-semibold transition-all landing-horizon-btn" data-horizon="20" onclick="changeLandingForecastHorizon(20)">20D</button>
+                                <div class="flex gap-1 bg-black/5 dark:bg-white/5 p-0.5 rounded-xl text-xs" id="landing-forecast-horizon-selector">
+                                    <button type="button" class="px-2.5 py-1 rounded-lg font-semibold transition-all landing-horizon-btn" data-horizon="1" onclick="changeLandingForecastHorizon(1)">1D</button>
+                                    <button type="button" class="px-2.5 py-1 rounded-lg font-semibold transition-all landing-horizon-btn active bg-white dark:bg-black/50 text-indigo-600 dark:text-indigo-400 shadow-xs" data-horizon="5" onclick="changeLandingForecastHorizon(5)">5D</button>
+                                    <button type="button" class="px-2.5 py-1 rounded-lg font-semibold transition-all landing-horizon-btn" data-horizon="20" onclick="changeLandingForecastHorizon(20)">20D</button>
                                 </div>
-                                <button type="button" onclick="loadLandingForecasts(true)" class="p-1.5 rounded-lg text-apple-gray hover:text-indigo-600 hover:bg-black/5 dark:hover:bg-white/5 transition" title="Refresh forecasts">
+                                <button type="button" onclick="loadLandingForecasts(true)" class="p-1.5 rounded-xl text-apple-gray hover:text-indigo-600 hover:bg-black/5 dark:hover:bg-white/5 transition" title="Refresh forecasts">
                                     <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                                 </button>
                             </div>
@@ -303,11 +614,58 @@
                         </div>
                     </section>
 
-                    <section class="glass-panel rounded-3xl p-5 md:p-6">
-                        <div class="mb-3 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-semibold uppercase tracking-[.15em] text-apple-blue">The latest</p><h2 class="mt-1 text-xl font-semibold">Market headlines</h2><p class="mt-1 text-xs text-apple-gray">A short preview from configured publishers.</p></div><button type="button" onclick="showView('news')" class="min-h-10 rounded-xl px-3 text-sm font-semibold text-apple-blue hover:bg-black/5">Open news feed <i data-lucide="arrow-up-right" class="ml-1 inline h-4 w-4"></i></button></div>
-                        <div id="landing-news-feed" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2" aria-live="polite"><p class="py-8 text-center text-sm text-apple-gray">Gathering recent headlines…</p></div>
+                    <!-- Market Headlines Section -->
+                    <section class="glass-panel rounded-3xl p-5 md:p-6 border border-black/[0.06] dark:border-white/[0.08]">
+                        <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[.15em] text-apple-blue">The latest</p>
+                                <h2 class="mt-1 text-xl font-bold tracking-tight text-gray-900 dark:text-white">Market headlines &amp; intelligence</h2>
+                                <p class="mt-1 text-xs text-apple-gray">A short preview from configured publishers.</p>
+                            </div>
+                            <button type="button" onclick="showView('news')" class="min-h-10 rounded-xl px-3 text-sm font-semibold text-apple-blue hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                Open news feed <i data-lucide="arrow-up-right" class="ml-1 inline h-4 w-4"></i>
+                            </button>
+                        </div>
+                        <div id="landing-news-feed" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2" aria-live="polite">
+                            <p class="py-8 text-center text-sm text-apple-gray">Gathering recent headlines…</p>
+                        </div>
                     </section>
-                    <section class="glass-panel flex flex-col gap-4 rounded-3xl p-5 sm:flex-row sm:items-center sm:justify-between md:px-6"><div class="flex items-center gap-3"><span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-apple-blue/10 text-apple-blue"><i data-lucide="sparkles" class="h-5 w-5"></i></span><div><p class="text-xs font-semibold uppercase tracking-[.15em] text-apple-blue">Research assistant</p><h2 class="mt-0.5 text-base font-semibold">Questions about markets or your research?</h2></div></div><button type="button" onclick="focusChat()" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-apple-blue px-4 text-sm font-semibold text-white">Open AI research <i data-lucide="arrow-up-right" class="h-4 w-4"></i></button></section>
+
+                    <!-- Elevated Neural AI Copilot Callout with Interactive Prompt Chips -->
+                    <section class="glass-panel relative rounded-3xl p-6 sm:p-7 border border-indigo-500/20 shadow-lg bg-gradient-to-r from-indigo-500/[0.05] via-sky-500/[0.03] to-purple-500/[0.04]">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-md shadow-blue-500/25">
+                                        <i data-lucide="sparkles" class="h-5 w-5"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="text-base sm:text-lg font-bold tracking-tight text-gray-900 dark:text-white">StockAI Neural Research Copilot</h3>
+                                        <p class="text-xs text-apple-gray">Questions about markets, corporate valuations, or financial statements? Ask the copilot.</p>
+                                    </div>
+                                </div>
+                                <!-- Clickable AI Prompts -->
+                                <div class="flex flex-wrap items-center gap-2 pt-2">
+                                    <span class="text-[11px] font-semibold text-apple-gray">Suggested queries:</span>
+                                    <button type="button" class="landing-prompt-chip" onclick="startSuggestedChat('Compare NVIDIA vs Microsoft enterprise AI market share and current P/E multiples')">
+                                        <i data-lucide="sparkles" class="w-3 h-3 text-sky-500"></i> NVDA vs MSFT Valuation
+                                    </button>
+                                    <button type="button" class="landing-prompt-chip" onclick="startSuggestedChat('Analyze Reliance Industries retail and telecoms growth drivers in India')">
+                                        <i data-lucide="sparkles" class="w-3 h-3 text-sky-500"></i> Reliance Growth Drivers
+                                    </button>
+                                    <button type="button" class="landing-prompt-chip" onclick="startSuggestedChat('Provide an executive summary of Apple Q4 earnings outlook and services margin')">
+                                        <i data-lucide="sparkles" class="w-3 h-3 text-sky-500"></i> Apple Q4 Outlook
+                                    </button>
+                                    <button type="button" class="landing-prompt-chip" onclick="startSuggestedChat('Explain how the point-in-time quantitative ML forecasts calculate uncertainty ranges')">
+                                        <i data-lucide="sparkles" class="w-3 h-3 text-sky-500"></i> ML Uncertainty Audit
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" onclick="focusChat()" class="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-apple-blue hover:bg-blue-600 px-6 text-sm font-bold text-white shadow-lg shadow-blue-500/25 transition-all hover:-translate-y-0.5 active:scale-95">
+                                Launch Copilot <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+                    </section>
                     <div id="market-comparison-section" class="hidden">
                         <div class="mb-4 flex flex-wrap items-start justify-between gap-3"><div><h2 id="compare-heading" class="text-lg font-semibold">Market comparison</h2><p class="mt-1 text-xs text-apple-gray">Indexed to 100 at the start of the selected period. Feed freshness varies by provider.</p></div><div class="flex gap-2"><select aria-label="Comparison period" id="compare-period" class="rounded-xl border border-black/10 bg-white/70 px-3 py-2 text-sm dark:bg-black/20" onchange="loadComparisons()"><option value="1mo">1 month</option><option value="3mo">3 months</option><option value="6mo">6 months</option><option value="1y">1 year</option></select><button type="button" class="min-h-11 rounded-xl px-3 text-sm font-semibold text-apple-blue hover:bg-black/5" onclick="loadComparisons(true)"><i data-lucide="refresh-cw" class="mr-1 inline h-4 w-4"></i>Refresh data</button></div></div>
                         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" id="comparison-grid">
@@ -2353,6 +2711,6 @@
     </div>
 
     <!-- Scripts -->
-    <script defer src="/static/app.js?v=20261021-3"></script>
+    <script defer src="/static/app.js?v=20261027-4"></script>
 </body>
 </html>

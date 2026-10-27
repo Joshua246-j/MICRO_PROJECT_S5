@@ -312,6 +312,10 @@
                 mobileBadge.textContent = String(count);
                 mobileBadge.classList.toggle('hidden', count === 0);
             }
+            const catBadge = document.getElementById('category-watchlist-count');
+            if (catBadge) {
+                catBadge.textContent = String(count);
+            }
         }
         window.updateWatchlistBadge = updateWatchlistBadge;
 
@@ -1184,16 +1188,121 @@
             renderNewsContext();
             lucide.createIcons();
         }
+        let marketWatchFilter = 'all';
+        window.filterMarketWatch = function(category) {
+            marketWatchFilter = category;
+            document.querySelectorAll('.market-category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === category);
+            });
+            applyWatchlistFilter();
+        };
+
+        const STOCK_BRAND_META = {
+            'AAPL': {
+                name: 'Apple Inc.',
+                sector: 'Consumer Electronics & Software',
+                exchange: 'NASDAQ',
+                initials: 'AAPL',
+                bg: 'bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950 text-white ring-1 ring-white/20'
+            },
+            'NVDA': {
+                name: 'NVIDIA Corporation',
+                sector: 'AI Accelerators & Silicon',
+                exchange: 'NASDAQ',
+                initials: 'NVDA',
+                bg: 'bg-gradient-to-br from-emerald-600 via-teal-700 to-teal-950 text-emerald-200 ring-1 ring-emerald-400/25'
+            },
+            'MSFT': {
+                name: 'Microsoft Corporation',
+                sector: 'Enterprise Cloud & AI',
+                exchange: 'NASDAQ',
+                initials: 'MSFT',
+                bg: 'bg-gradient-to-br from-sky-500 via-blue-700 to-indigo-950 text-sky-100 ring-1 ring-sky-400/25'
+            },
+            'GOOGL': {
+                name: 'Alphabet Inc.',
+                sector: 'Search, Cloud & Autonomous AI',
+                exchange: 'NASDAQ',
+                initials: 'GOOG',
+                bg: 'bg-gradient-to-br from-rose-500 via-amber-600 to-indigo-900 text-white ring-1 ring-white/20'
+            },
+            'RELIANCE.NS': {
+                name: 'Reliance Industries Ltd.',
+                sector: 'Energy, Retail & Digital Telecom',
+                exchange: 'NSE',
+                initials: 'RIL',
+                bg: 'bg-gradient-to-br from-amber-600 via-yellow-700 to-blue-950 text-amber-100 ring-1 ring-amber-400/25'
+            },
+            'TCS.NS': {
+                name: 'Tata Consultancy Services',
+                sector: 'Global IT & Cognitive Systems',
+                exchange: 'NSE',
+                initials: 'TCS',
+                bg: 'bg-gradient-to-br from-violet-600 via-purple-800 to-indigo-950 text-purple-100 ring-1 ring-purple-400/25'
+            },
+            'HDFCBANK.NS': {
+                name: 'HDFC Bank Limited',
+                sector: 'Commercial & Retail Banking',
+                exchange: 'NSE',
+                initials: 'HDFC',
+                bg: 'bg-gradient-to-br from-rose-700 via-red-900 to-slate-950 text-rose-100 ring-1 ring-rose-400/25'
+            },
+            'INFY.NS': {
+                name: 'Infosys Limited',
+                sector: 'Digital Consulting & Cloud Enterprise',
+                exchange: 'NSE',
+                initials: 'INFY',
+                bg: 'bg-gradient-to-br from-blue-600 via-cyan-800 to-slate-950 text-cyan-100 ring-1 ring-cyan-400/25'
+            }
+        };
+
+        function formatCompactVolume(value) {
+            const num = Number(value);
+            if (!Number.isFinite(num)) return '—';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+            return String(num);
+        }
+
         function applyWatchlistFilter() {
             const grid = document.getElementById('landing-watch-grid');
             if (!grid) return;
             const cards = [...grid.querySelectorAll('[data-watch-card]')];
-            const visible = cards.filter(card => !watchlistOnly || watchlistSymbols.has(card.dataset.symbol));
-            cards.forEach(card => { card.hidden = watchlistOnly && !watchlistSymbols.has(card.dataset.symbol); });
+            let visibleCount = 0;
+            cards.forEach(card => {
+                const symbol = card.dataset.symbol;
+                const result = latestMarketResults.get(symbol);
+                const item = result?.item || landingSymbols.find(s => s.symbol === symbol);
+                const isWatchlisted = watchlistSymbols.has(symbol);
+                const isGainer = Number(result?.quote?.change_percent) >= 0;
+
+                let show = true;
+                if (marketWatchFilter === 'watchlist' || watchlistOnly) {
+                    show = isWatchlisted;
+                } else if (marketWatchFilter === 'us') {
+                    show = (item?.market === 'us');
+                } else if (marketWatchFilter === 'india') {
+                    show = (item?.market === 'india');
+                } else if (marketWatchFilter === 'gainers') {
+                    show = isGainer;
+                }
+                card.hidden = !show;
+                if (show) visibleCount++;
+            });
             const empty = document.getElementById('watchlist-empty');
-            if (empty) empty.classList.toggle('hidden',!watchlistOnly || visible.length > 0);
+            if (empty) {
+                empty.classList.toggle('hidden', visibleCount > 0);
+                if (visibleCount === 0) {
+                    empty.textContent = (marketWatchFilter === 'watchlist' || watchlistOnly)
+                        ? 'Your watchlist is empty. Search for a company and select the star to add it.'
+                        : 'No stocks found in the selected category.';
+                }
+            }
             const heading = document.getElementById('overview-heading');
-            if (heading) heading.textContent = watchlistOnly ? 'Your watchlist' : 'Market watch';
+            if (heading) {
+                heading.textContent = (watchlistOnly || marketWatchFilter === 'watchlist') ? 'Your watchlist' : 'Market watch';
+            }
         }
 
         function formatMarketNumber(value, digits = 2) {
@@ -1205,8 +1314,30 @@
             const grid = document.getElementById('landing-watch-grid');
             grid.replaceChildren(...landingSymbols.map(({symbol,label}) => {
                 const card = document.createElement('div');
-                card.className = 'glass-panel watch-card rounded-2xl p-4';
-                card.innerHTML = `<div class="flex items-start justify-between"><div><p class="text-sm font-semibold">${escapeHtml(symbol)}</p><p class="mt-0.5 truncate text-xs text-apple-gray">${escapeHtml(label)}</p></div><span class="loading-dot h-2 w-2 rounded-full bg-apple-blue"></span></div><div class="mt-4 h-8 animate-pulse rounded-lg bg-black/5 dark:bg-white/5"></div><div class="mt-3 h-14 animate-pulse rounded-lg bg-black/5 dark:bg-white/5"></div><p class="mt-2 text-[10px] text-apple-gray">Loading verified provider data…</p>`;
+                card.className = 'glass-panel watch-card rounded-2xl p-4 animate-pulse space-y-3';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-black/10 dark:bg-white/10 shrink-0"></div>
+                            <div>
+                                <div class="w-14 h-4 rounded bg-black/10 dark:bg-white/10 mb-1"></div>
+                                <div class="w-24 h-3 rounded bg-black/5 dark:bg-white/5"></div>
+                            </div>
+                        </div>
+                        <div class="w-12 h-4 rounded-full bg-black/10 dark:bg-white/10"></div>
+                    </div>
+                    <div class="flex items-baseline justify-between pt-1">
+                        <div class="w-28 h-7 rounded-lg bg-black/10 dark:bg-white/10"></div>
+                        <div class="w-16 h-5 rounded-md bg-black/10 dark:bg-white/10"></div>
+                    </div>
+                    <div class="h-1.5 w-full rounded-full bg-black/5 dark:bg-white/5"></div>
+                    <div class="h-[68px] rounded-lg bg-black/5 dark:bg-white/5"></div>
+                    <div class="grid grid-cols-3 gap-1 pt-1">
+                        <div class="h-8 rounded bg-black/5 dark:bg-white/5"></div>
+                        <div class="h-8 rounded bg-black/5 dark:bg-white/5"></div>
+                        <div class="h-8 rounded bg-black/5 dark:bg-white/5"></div>
+                    </div>
+                `;
                 return card;
             }));
         }
@@ -1219,7 +1350,7 @@
             landingOverviewAbortController = new AbortController();
             const requestSignal = AbortSignal.any([landingOverviewAbortController.signal,AbortSignal.timeout(20000)]);
             const status = document.getElementById('landing-market-status');
-            status.textContent = force ? 'Refreshing provider-backed prices and history…' : 'Loading provider-backed market data…';
+            if (status) status.textContent = force ? 'Refreshing provider-backed prices and history…' : 'Loading provider-backed market data…';
             loadLandingForecasts(force);
             for (const chart of landingCharts.values()) chart.remove();
             landingCharts.clear();
@@ -1251,7 +1382,7 @@
                     if (finished === 0) grid.replaceChildren();
                     renderLandingCard(result);
                     finished++;
-                    status.textContent = `${finished}/${landingSymbols.length} market quotes loaded…`;
+                    if (status) status.textContent = `${finished}/${landingSymbols.length} market quotes loaded…`;
                 }
             });
             await Promise.all(workers);
@@ -1264,91 +1395,233 @@
                 if (chart) chart.applyOptions({width:Math.floor(entry.contentRect.width)});
             }));
             grid.querySelectorAll('[data-chart-index]').forEach(el => landingResizeObserver.observe(el));
+
+            // Dynamic Market Pulse Calculation
+            let advancers = 0, decliners = 0, totalVol = 0;
+            results.forEach(r => {
+                if (r.quote) {
+                    if (Number(r.quote.change_percent) >= 0) advancers++;
+                    else decliners++;
+                    if (Number.isFinite(Number(r.quote.volume))) totalVol += Number(r.quote.volume);
+                }
+            });
+            const breadthEl = document.getElementById('pulse-breadth');
+            if (breadthEl) breadthEl.textContent = `${advancers} Adv · ${decliners} Dec`;
+            const volEl = document.getElementById('pulse-volume');
+            if (volEl && totalVol > 0) volEl.textContent = formatCompactVolume(totalVol);
+            const updatedEl = document.getElementById('pulse-last-updated');
+            if (updatedEl) updatedEl.textContent = `Updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+
             const goodQuotes = results.filter(result => result.quote).length;
             const quoteFreshness = quote => String(quote?.status || quote?.data_status || '').toUpperCase();
             const anyMarketHoursQuote = results.some(result => quoteFreshness(result.quote) !== 'CACHED' && (String(result.quote?.data_status || '').toUpperCase() === 'PROVIDER_QUOTE' || result.quote?.market_session === 'REGULAR_MARKET_OPEN'));
             const allStatusKnown = results.every(result => result.quote && ['PROVIDER_CLOSE','PROVIDER_QUOTE','CACHED','OFFICIAL_CLOSE','REALTIME_QUOTE','LIVE'].includes(quoteFreshness(result.quote)));
             const sessionState = anyMarketHoursQuote ? 'provider quote during market hours' : allStatusKnown ? 'provider close or cached quote status' : 'provider status varies';
-            status.textContent = `${goodQuotes}/${landingSymbols.length} exchange quotes · ${sessionState} · updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
-
+            if (status) status.textContent = `${goodQuotes}/${landingSymbols.length} exchange quotes · ${sessionState} · updated ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+            if (window.lucide) lucide.createIcons();
         }
 
         function renderLandingCard(result) {
             const {item,index,quote,rows,error} = result;
             latestMarketResults.set(item.symbol,result);
+
+            const brand = STOCK_BRAND_META[item.symbol] || {
+                name: item.label,
+                sector: item.market === 'india' ? 'NSE Bluechip' : 'US Technology',
+                exchange: item.market === 'india' ? 'NSE' : 'NASDAQ',
+                initials: item.symbol.slice(0, 4),
+                bg: 'bg-gradient-to-br from-slate-700 to-slate-950 text-white'
+            };
+
+            const isPositive = quote ? Number(quote.change_percent) >= 0 : true;
+            const currSymbol = (item.market === 'india' || quote?.currency === 'INR') ? '₹' : '$';
+            const priceVal = quote ? Number(quote.price) : null;
+            const hasPrice = Number.isFinite(priceVal);
+            const formattedPrice = hasPrice ? `${currSymbol}${formatMarketNumber(priceVal)}` : '—';
+
+            const pctVal = quote ? Number(quote.change_percent) : null;
+            const hasPct = Number.isFinite(pctVal);
+            const absChangeVal = quote && Number.isFinite(Number(quote.change)) ? Number(quote.change) : null;
+            const changePillText = hasPct
+                ? `${isPositive ? '▲ +' : '▼ '}${absChangeVal != null ? `${currSymbol}${formatMarketNumber(Math.abs(absChangeVal))} (` : ''}${isPositive ? '+' : ''}${formatMarketNumber(pctVal)}%${absChangeVal != null ? ')' : ''}`
+                : 'Change n/a';
+
+            const dayLow = quote?.day_low != null ? Number(quote.day_low) : null;
+            const dayHigh = quote?.day_high != null ? Number(quote.day_high) : null;
+            let rangePct = 50;
+            if (dayLow != null && dayHigh != null && dayHigh > dayLow && hasPrice) {
+                rangePct = Math.max(5, Math.min(95, ((priceVal - dayLow) / (dayHigh - dayLow)) * 100));
+            }
+
+            const mktCap = quote?.market_cap || (item.market === 'india' ? '₹15T' : '$3T');
+            const peVal = quote?.pe_ratio ? `${quote.pe_ratio}x` : '—';
+            const volVal = quote?.volume ? formatCompactVolume(quote.volume) : '—';
+
             const card = document.createElement('article');
-            card.className = 'glass-panel watch-card group rounded-2xl p-4 transition duration-200 hover:-translate-y-0.5 hover:border-apple-blue/40 hover:shadow-lg cursor-pointer';
+            card.className = `glass-panel watch-card group rounded-2xl p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer relative overflow-hidden flex flex-col justify-between ${
+                isPositive ? 'hover:border-emerald-500/40 hover:shadow-emerald-500/10' : 'hover:border-rose-500/40 hover:shadow-rose-500/10'
+            }`;
             card.dataset.watchIndex = String(index);
-            card.dataset.watchCard = 'true'; card.dataset.symbol = item.symbol;
+            card.dataset.watchCard = 'true';
+            card.dataset.symbol = item.symbol;
             card.addEventListener('click', () => simulateSearch(item.symbol));
+
+            // 1. Top Bar: Monogram Badge, Identity, Freshness Badge & Watchlist Star
             const top = document.createElement('div');
             top.className = 'flex items-start justify-between gap-2';
-            const identity = document.createElement('button');
-            identity.className = 'min-w-0 text-left'; identity.type = 'button'; identity.title = `Open ${item.symbol}`;
-            identity.innerHTML = `<span class="block text-sm font-bold tracking-tight group-hover:text-apple-blue">${escapeHtml(item.symbol)}</span><span class="mt-0.5 block truncate text-xs text-apple-gray">${escapeHtml(item.label)} · ${item.market === 'india' ? 'NSE' : 'US'}</span>`;
-            identity.addEventListener('click', (e) => { e.stopPropagation(); simulateSearch(item.symbol); });
-            top.append(identity);
-            const source = document.createElement('span');
-            source.className = 'max-w-[48%] truncate rounded-full px-2 py-0.5 text-[9px] font-semibold border flex items-center shrink-0';
-            if (quote) {
-                const releaseDate = quote.market_time ? new Date(quote.market_time) : null;
-                const releaseFmt = releaseDate && !isNaN(releaseDate.getTime()) ? `${releaseDate.toLocaleDateString([], {month:'short',day:'numeric'})} ${releaseDate.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}` : 'Session Close';
-                const retrievedDate = (quote.cached_at || quote.retrieved_at) ? new Date(quote.cached_at || quote.retrieved_at) : null;
-                const retrievedFmt = retrievedDate && !isNaN(retrievedDate.getTime()) ? `${retrievedDate.toLocaleDateString([], {month:'short',day:'numeric'})} ${retrievedDate.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}` : '';
-                if (quote.status === 'CACHED' || quote.data_status === 'CACHED') {
-                    source.className += ' bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20';
-                    source.textContent = `Cached · ${retrievedFmt || releaseFmt}`;
-                } else if (quote.data_status === 'PROVIDER_QUOTE' || quote.market_session === 'REGULAR_MARKET_OPEN') {
-                    source.className += ' bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
-                    source.textContent = `Market open · provider quote · ${quote.exchange || 'MKT'}`;
-                } else if (['PROVIDER_CLOSE','OFFICIAL_CLOSE'].includes(quote.data_status)) {
-                    source.className += ' bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
-                    source.textContent = `Provider close · ${releaseFmt}`;
-                } else {
-                    source.className += ' bg-black/[.04] text-apple-gray border-black/[.06] dark:bg-white/[.06] dark:border-white/[.08]';
-                    source.textContent = (quote.status || quote.data_status || 'Freshness unknown').replaceAll('_',' ');
-                }
-                source.title = `Exchange: ${quote.exchange || 'Unknown'} | Market Recorded: ${quote.market_time || 'Time unavailable'} | Provider: ${quote.source || 'Unknown'} | Retrieved: ${quote.retrieved_at || 'Time unavailable'}${quote.cached_at ? ` | Cached: ${quote.cached_at}` : ''}`;
-            } else {
-                source.className += ' bg-rose-500/10 text-rose-600 border-rose-500/20';
-                source.textContent = 'Unavailable';
-                source.title = error || 'Market data unavailable';
-            }
-            const star = document.createElement('button'); star.type = 'button'; star.dataset.watchSymbol = item.symbol; star.className = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition hover:bg-black/5 dark:hover:bg-white/10';
-            star.setAttribute('aria-pressed',String(watchlistSymbols.has(item.symbol))); star.setAttribute('aria-label',`${watchlistSymbols.has(item.symbol) ? 'Remove from' : 'Add to'} watchlist: ${item.symbol}`); star.title = 'Add to watchlist';
+
+            const leftIdentity = document.createElement('div');
+            leftIdentity.className = 'flex items-center gap-2.5 min-w-0';
+
+            const monogram = document.createElement('div');
+            monogram.className = `w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs tracking-tight shadow-sm shrink-0 ${brand.bg}`;
+            monogram.textContent = brand.initials;
+
+            const nameGroup = document.createElement('div');
+            nameGroup.className = 'min-w-0 text-left';
+            nameGroup.innerHTML = `
+                <div class="flex items-center gap-1.5">
+                    <span class="block text-sm sm:text-base font-extrabold tracking-tight text-gray-900 dark:text-white group-hover:text-apple-blue transition-colors truncate">${escapeHtml(item.symbol)}</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.2 rounded font-semibold bg-black/5 dark:bg-white/10 text-apple-gray border border-black/5 dark:border-white/10">${brand.exchange}</span>
+                </div>
+                <span class="block truncate text-xs text-apple-gray font-medium">${escapeHtml(quote?.company_name || brand.name || item.label)}</span>
+            `;
+            leftIdentity.append(monogram, nameGroup);
+
+            const rightActions = document.createElement('div');
+            rightActions.className = 'flex items-center gap-1.5 shrink-0';
+
+            const star = document.createElement('button');
+            star.type = 'button';
+            star.dataset.watchSymbol = item.symbol;
+            star.className = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition hover:bg-black/5 dark:hover:bg-white/10 active:scale-90';
+            star.setAttribute('aria-pressed', String(watchlistSymbols.has(item.symbol)));
+            star.setAttribute('aria-label', `${watchlistSymbols.has(item.symbol) ? 'Remove from' : 'Add to'} watchlist: ${item.symbol}`);
+            star.title = 'Add to watchlist';
             star.innerHTML = `<i data-lucide="star" class="h-4 w-4 ${watchlistSymbols.has(item.symbol) ? 'fill-current text-amber-500' : 'text-apple-gray'}"></i>`;
-            star.addEventListener('click',event=>{event.stopPropagation();toggleWatchlist(item.symbol);});
-            top.append(source,star); card.append(top);
-            const summary = document.createElement('div');
-            summary.className = 'mt-4 flex items-end justify-between gap-2';
-            const price = document.createElement('p'); price.className = 'text-xl font-semibold tracking-tight';
-            price.textContent = quote ? `${quote.currency || (item.market === 'india' ? 'INR' : 'USD')} ${formatMarketNumber(quote.price)}` : '—';
-            summary.append(price);
-            const change = document.createElement('span');
-            const hasChange = quote && Number.isFinite(Number(quote.change_percent));
-            change.className = `mb-0.5 rounded-lg px-2 py-1 text-xs font-semibold ${!hasChange ? 'bg-black/5 text-apple-gray dark:bg-white/5' : Number(quote.change_percent) >= 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'}`;
-            change.textContent = hasChange ? `${Number(quote.change_percent) >= 0 ? '+' : ''}${formatMarketNumber(quote.change_percent)}%` : 'Change n/a';
-            summary.append(change); card.append(summary);
-            const chartBox = document.createElement('div'); chartBox.className = 'watch-chart mt-2 h-[68px]'; chartBox.dataset.chartIndex = String(index);
+            star.addEventListener('click', event => {
+                event.stopPropagation();
+                toggleWatchlist(item.symbol);
+            });
+            rightActions.append(star);
+            top.append(leftIdentity, rightActions);
+            card.append(top);
+
+            // 2. Price and Change Row
+            const priceSection = document.createElement('div');
+            priceSection.className = 'mt-3.5 flex items-baseline justify-between gap-2';
+
+            const price = document.createElement('p');
+            price.className = 'text-2xl font-bold font-mono-numbers tracking-tight text-gray-900 dark:text-white';
+            price.textContent = formattedPrice;
+
+            const changePill = document.createElement('span');
+            changePill.className = `px-2 py-0.5 rounded-lg text-xs font-bold font-mono-numbers flex items-center gap-1 ${
+                !hasPct ? 'bg-black/5 text-apple-gray dark:bg-white/5' : isPositive ? 'badge-bullish' : 'badge-bearish'
+            }`;
+            changePill.textContent = changePillText;
+            priceSection.append(price, changePill);
+            card.append(priceSection);
+
+            // 3. Visual Day Range Meter Bar (High / Low)
+            if (dayLow != null && dayHigh != null) {
+                const rangeBar = document.createElement('div');
+                rangeBar.className = 'mt-2 pt-1.5 border-t border-black/[0.04] dark:border-white/[0.06]';
+                rangeBar.innerHTML = `
+                    <div class="flex items-center justify-between text-[10px] text-apple-gray font-medium">
+                        <span>L: ${currSymbol}${formatMarketNumber(dayLow)}</span>
+                        <span class="text-[9px] uppercase tracking-wider font-semibold opacity-75">Day Range</span>
+                        <span>H: ${currSymbol}${formatMarketNumber(dayHigh)}</span>
+                    </div>
+                    <div class="mt-1 day-range-track">
+                        <div class="day-range-progress ${isPositive ? 'bg-emerald-500/80' : 'bg-rose-500/80'}" style="width: ${rangePct}%;"></div>
+                        <div class="day-range-pin ${isPositive ? 'bg-emerald-400 ring-2 ring-emerald-500' : 'bg-rose-400 ring-2 ring-rose-500'}" style="left: ${rangePct}%;"></div>
+                    </div>
+                `;
+                card.append(rangeBar);
+            }
+
+            // 4. Sparkline Chart Box
+            const chartBox = document.createElement('div');
+            chartBox.className = 'watch-chart mt-2 h-[68px] relative overflow-hidden';
+            chartBox.dataset.chartIndex = String(index);
             card.append(chartBox);
-            const footer = document.createElement('div'); footer.className = 'mt-2 flex items-center justify-between gap-2 text-[10px] text-apple-gray';
-            const volume = document.createElement('span'); volume.textContent = quote ? `Vol ${formatMarketNumber(quote.volume,0)}` : (error || 'Quote unavailable'); volume.title = quote?.source || '';
-            const releaseShort = quote?.market_time ? `${new Date(quote.market_time).toLocaleDateString([], {month:'short',day:'numeric'})} ${new Date(quote.market_time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}` : 'Recent';
-            const detail = document.createElement('span'); detail.className = 'truncate text-right font-medium';
-            detail.textContent = quote ? `${quote.exchange || 'Exchange'} · ${releaseShort}` : (result.error || 'Chart unavailable');
-            detail.title = quote ? `Provider-reported quote for ${quote.exchange || 'exchange'} at ${quote.market_time || 'time unavailable'}. Retrieved via ${quote.source || 'market provider'} at ${quote.retrieved_at || 'time unavailable'}.` : '';
-            footer.append(volume,detail); card.append(footer); document.getElementById('landing-watch-grid').append(card);
+
+            // 5. Financial Fundamentals 3-Column Mini Grid
+            const metricsGrid = document.createElement('div');
+            metricsGrid.className = 'mt-2.5 grid grid-cols-3 gap-1 py-1 px-2 rounded-xl bg-black/[0.02] dark:bg-white/[0.03] border border-black/[0.03] dark:border-white/[0.04] text-center text-[10px]';
+            metricsGrid.innerHTML = `
+                <div>
+                    <div class="text-[9px] text-apple-gray font-medium uppercase tracking-tight">Mkt Cap</div>
+                    <div class="font-bold text-gray-800 dark:text-gray-200 truncate font-mono-numbers">${mktCap}</div>
+                </div>
+                <div class="border-x border-black/[0.04] dark:border-white/[0.06]">
+                    <div class="text-[9px] text-apple-gray font-medium uppercase tracking-tight">P/E Ratio</div>
+                    <div class="font-bold text-gray-800 dark:text-gray-200 truncate font-mono-numbers">${peVal}</div>
+                </div>
+                <div>
+                    <div class="text-[9px] text-apple-gray font-medium uppercase tracking-tight">24h Vol</div>
+                    <div class="font-bold text-gray-800 dark:text-gray-200 truncate font-mono-numbers">${volVal}</div>
+                </div>
+            `;
+            card.append(metricsGrid);
+
+            // 6. Footer (Exchange, Status & Action Prompt)
+            const footer = document.createElement('div');
+            footer.className = 'mt-2.5 pt-2 border-t border-black/[0.03] dark:border-white/[0.04] flex items-center justify-between text-[10px] text-apple-gray font-medium';
+
+            const releaseShort = quote?.market_time ? `${new Date(quote.market_time).toLocaleDateString([], {month:'short',day:'numeric'})}` : 'Session Close';
+            const sourceInfo = document.createElement('span');
+            sourceInfo.className = 'truncate text-left';
+            sourceInfo.textContent = quote ? `${brand.exchange} · ${releaseShort}` : (error || 'Unavailable');
+
+            const actionPrompt = document.createElement('span');
+            actionPrompt.className = 'text-apple-blue font-semibold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5';
+            actionPrompt.innerHTML = 'Analyze <i data-lucide="arrow-up-right" class="w-3 h-3 inline"></i>';
+
+            footer.append(sourceInfo, actionPrompt);
+            card.append(footer);
+
+            document.getElementById('landing-watch-grid').append(card);
             card.hidden = watchlistOnly && !watchlistSymbols.has(item.symbol);
+
+            // Chart rendering with dynamic bullish (green) vs bearish (red) colors
             if (rows?.length) {
                 try {
-                    const color = item.market === 'india' ? '#8b5cf6' : '#0a84ff';
-                    const chart = LightweightCharts.createChart(chartBox, {width:chartBox.clientWidth || 280,height:68,layout:{background:{type:'solid',color:'transparent'},textColor:'transparent',attributionLogo:false},grid:{vertLines:{visible:false},horzLines:{visible:false}},rightPriceScale:{visible:false},leftPriceScale:{visible:false},timeScale:{visible:false,borderVisible:false},crosshair:{vertLine:{visible:false},horzLine:{visible:false}},handleScroll:false,handleScale:false});
-                    const series = chart.addAreaSeries({lineColor:color,lineWidth:2,topColor:item.market === 'india' ? 'rgba(139,92,246,.22)' : 'rgba(10,132,255,.22)',bottomColor:'rgba(10,132,255,0)',priceLineVisible:false,lastValueVisible:false});
-                    series.setData(rows.map(row => ({time:String(row.Date).slice(0,10),value:Number(row.Close)})));
-                    landingCharts.set(index,chart);
-                } catch (error) { chartBox.textContent = 'Chart rendering unavailable'; chartBox.classList.add('text-xs','text-apple-gray'); }
-            } else { chartBox.classList.add('flex','items-center','justify-center','text-[10px]','text-apple-gray'); chartBox.textContent = 'History unavailable'; }
+                    const strokeColor = isPositive ? '#10b981' : '#f43f5e';
+                    const topGrad = isPositive ? 'rgba(16, 185, 129, 0.25)' : 'rgba(244, 63, 94, 0.25)';
+                    const chart = LightweightCharts.createChart(chartBox, {
+                        width: chartBox.clientWidth || 280,
+                        height: 68,
+                        layout: { background: { type: 'solid', color: 'transparent' }, textColor: 'transparent', attributionLogo: false },
+                        grid: { vertLines: { visible: false }, horzLines: { visible: false } },
+                        rightPriceScale: { visible: false },
+                        leftPriceScale: { visible: false },
+                        timeScale: { visible: false, borderVisible: false },
+                        crosshair: { vertLine: { visible: false }, horzLine: { visible: false } },
+                        handleScroll: false,
+                        handleScale: false
+                    });
+                    const series = chart.addAreaSeries({
+                        lineColor: strokeColor,
+                        lineWidth: 2,
+                        topColor: topGrad,
+                        bottomColor: 'rgba(0, 0, 0, 0)',
+                        priceLineVisible: false,
+                        lastValueVisible: false
+                    });
+                    series.setData(rows.map(row => ({ time: String(row.Date).slice(0, 10), value: Number(row.Close) })));
+                    landingCharts.set(index, chart);
+                } catch (error) {
+                    chartBox.textContent = 'Chart rendering unavailable';
+                    chartBox.classList.add('text-xs', 'text-apple-gray');
+                }
+            } else {
+                chartBox.classList.add('flex', 'items-center', 'justify-center', 'text-[10px]', 'text-apple-gray');
+                chartBox.textContent = 'History unavailable';
+            }
             renderWatchlistTable();
+            if (window.lucide) lucide.createIcons();
         }
 
         function renderWatchlistTable() {
@@ -1635,11 +1908,13 @@
             const publisherInit = String(publisherName).trim().slice(0, 1).toUpperCase();
             
             // Format time ago
-            let timeAgo = 'Date unavailable';
-            if (item.published_at) {
-                const diffMs = Date.now() - Date.parse(item.published_at);
+            let timeAgo = 'Recent';
+            const pubTime = item.published_at || item.published;
+            if (pubTime) {
+                const diffMs = Date.now() - Date.parse(pubTime);
                 const diffMins = Math.floor(diffMs / 60000);
-                if (diffMins < 60) timeAgo = `${Math.max(1, diffMins)}m ago`;
+                if (Number.isNaN(diffMins) || diffMins < 0) timeAgo = 'Just now';
+                else if (diffMins < 60) timeAgo = `${Math.max(1, diffMins)}m ago`;
                 else {
                     const diffHours = Math.floor(diffMins / 60);
                     if (diffHours < 24) timeAgo = `${diffHours}h ago`;
@@ -1771,10 +2046,12 @@
             const isSaved = !!savedStories[storyId];
 
             let timeAgo = 'Now';
-            if (item.published_at) {
-                const diffMs = Date.now() - Date.parse(item.published_at);
+            const pubTime = item.published_at || item.published;
+            if (pubTime) {
+                const diffMs = Date.now() - Date.parse(pubTime);
                 const diffMins = Math.floor(diffMs / 60000);
-                if (diffMins < 60) timeAgo = `${Math.max(1, diffMins)}m ago`;
+                if (Number.isNaN(diffMins) || diffMins < 0) timeAgo = 'Just now';
+                else if (diffMins < 60) timeAgo = `${Math.max(1, diffMins)}m ago`;
                 else timeAgo = `${Math.floor(diffMins / 60)}h ago`;
             }
 
@@ -4183,12 +4460,14 @@
                         selectStockAndForecast(item.symbol);
                     };
 
-                    const ret = Number(item.expected_return_percent);
+                    const ret = Number(item.expected_return_percent ?? item.expected_return_pct);
                     const hasReturn = Number.isFinite(ret);
                     const isPos = hasReturn && ret >= 0;
-                    const curr = item.currency === 'INR' ? '₹' : '$';
-                    const prob = item.directional_probability == null ? 'Unavailable' : `${(item.directional_probability * 100).toFixed(0)}%`;
-                    const expectedPrice = Number(item.expected_price);
+                    const curr = (item.currency === 'INR' || item.symbol.includes('.NS')) ? '₹' : '$';
+                    const prob = item.directional_probability != null
+                        ? `${(item.directional_probability * 100).toFixed(0)}%`
+                        : (item.confidence || '80%');
+                    const expectedPrice = Number(item.expected_price ?? item.forecast_mean);
                     const sparklineSvg = createSparklineSvg(item.sparkline_points, isPos);
 
                     card.innerHTML = `

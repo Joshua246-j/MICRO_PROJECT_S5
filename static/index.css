@@ -2246,4 +2246,166 @@ html[data-theme="dark"] .news-action-btn.ai-btn:hover {
   color: #0f172a !important;
 }
 
+/* ==========================================================================
+   Wall-Street Grade Stock Market Terminal Landing Page Enhancements
+   ========================================================================== */
+
+/* Infinite Indices Ticker Tape Ribbon */
+.ticker-tape-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+  border-radius: 14px;
+}
+.ticker-tape-track {
+  display: flex;
+  width: max-content;
+  animation: tickerSlide 45s linear infinite;
+}
+.ticker-tape-track:hover {
+  animation-play-state: paused;
+}
+@keyframes tickerSlide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-tape-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-right: 1px solid rgba(127, 137, 154, 0.12);
+  font-size: 11.5px;
+  white-space: nowrap;
+  user-select: none;
+  cursor: default;
+  transition: background-color 0.18s ease;
+}
+.ticker-tape-item:hover {
+  background-color: rgba(127, 137, 154, 0.08);
+}
+
+/* Category Filter Tabs */
+.market-category-btn {
+  cursor: pointer;
+  border: 1px solid transparent;
+  user-select: none;
+}
+.market-category-btn.active {
+  background: white;
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+html.dark .market-category-btn.active,
+html[data-theme="dark"] .market-category-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Stock Card Range Bar */
+.day-range-track {
+  height: 4px;
+  width: 100%;
+  border-radius: 9999px;
+  background: rgba(127, 137, 154, 0.15);
+  position: relative;
+  overflow: visible;
+}
+.day-range-progress {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 9999px;
+}
+.day-range-pin {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Pulse Glow Accents */
+.badge-bullish {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.badge-bearish {
+  background: rgba(244, 63, 94, 0.12);
+  color: #f43f5e;
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+html.dark .badge-bullish,
+html[data-theme="dark"] .badge-bullish {
+  color: #34d399;
+}
+html.dark .badge-bearish,
+html[data-theme="dark"] .badge-bearish {
+  color: #fb7185;
+}
+
+/* AI Prompt Pill */
+.landing-prompt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-main);
+  background: rgba(127, 137, 154, 0.08);
+  border: 1px solid rgba(127, 137, 154, 0.15);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.landing-prompt-chip:hover {
+  background: rgba(2, 132, 199, 0.12);
+  border-color: rgba(2, 132, 199, 0.35);
+  color: #0284c7;
+  transform: translateY(-1px);
+}
+html.dark .landing-prompt-chip:hover,
+html[data-theme="dark"] .landing-prompt-chip:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+/* Market Spotlight & Institutional Consensus */
+.spotlight-metric-pill {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(127, 137, 154, 0.06);
+  border: 1px solid rgba(127, 137, 154, 0.1);
+}
+.consensus-bar-track {
+  display: flex;
+  height: 6px;
+  width: 100%;
+  border-radius: 9999px;
+  overflow: hidden;
+  gap: 2px;
+}
+.consensus-segment-buy {
+  background: #10b981;
+}
+.consensus-segment-hold {
+  background: #f59e0b;
+}
+.consensus-segment-sell {
+  background: #f43f5e;
+}
+
+
 
